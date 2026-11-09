@@ -171,11 +171,12 @@ function renderStats(stats) {
 function renderBoard(vulns) {
   const board = document.getElementById("board");
   board.innerHTML = "";
-  [...vulns].reverse().forEach((v, ri) => {
+  const rows = [...vulns].reverse();   // newest first — gap math too, not just display
+  rows.forEach((v, ri) => {
     const li = document.createElement("li");
     li.className = "arrival";
-    const gap = ri < vulns.length - 1
-      ? "+" + Math.round((v.ts - vulns[ri + 1].ts) / DAY) + "d"
+    const gap = ri < rows.length - 1
+      ? "+" + Math.round((v.ts - rows[ri + 1].ts) / DAY) + "d"
       : "—";
     const num = pad4(vulns.length - ri);
     /* era encoding is the candy: wave = rainbow wheel, classic = sepia */
