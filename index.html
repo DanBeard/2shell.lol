@@ -64,14 +64,6 @@ a:hover { background: var(--hue-1); border-bottom-color: var(--ink); }
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden;
       clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* the genre's favorite artifact: the rainbow bar */
-.rainbow-bar {
-  height: 8px; border: 2px solid var(--ink);
-  background: linear-gradient(90deg,
-    var(--hue-1), var(--hue-2), var(--hue-3), var(--hue-4),
-    var(--hue-5), var(--hue-6), var(--hue-7));
-}
-
 /* sticker chip */
 .sticker {
   display: inline-block; padding: .18rem .6rem;
@@ -223,7 +215,11 @@ a:hover { background: var(--hue-1); border-bottom-color: var(--ink); }
 }
 .cols {
   font-size: .72rem; letter-spacing: .14em;
-  padding-bottom: .55rem; border-bottom: 3px solid var(--ink);
+  padding: .35rem .6rem;
+  background: linear-gradient(90deg,
+    var(--hue-1), var(--hue-2), var(--hue-3), var(--hue-4),
+    var(--hue-5), var(--hue-6), var(--hue-7));
+  border-bottom: 3px solid var(--ink);
 }
 .board { list-style: none; }
 .arrival {
@@ -252,20 +248,6 @@ a:hover { background: var(--hue-1); border-bottom-color: var(--ink); }
 .arrival .src { font-size: .74rem; }
 .arrival .sum { grid-column: 2 / -1; color: var(--dim); font-size: .85rem;
                 margin-top: .55rem; max-width: 72ch; }
-
-/* era dividers: the wave in technicolor, the genesis era in sepia */
-.era { display: flex; align-items: center; gap: 1.1rem; padding-block: 1.9rem 1.4rem; }
-.era .rainbow-bar { flex: 1; height: 6px; }
-.era .era-label { font-size: .78rem; letter-spacing: .18em; }
-.era.era-wave .era-label {
-  background: var(--hue-2); border: 2px solid var(--ink);
-  box-shadow: 3px 3px 0 var(--ink); padding: .12rem .6rem;
-}
-.era.era-classic .era-label { color: var(--dim); }
-.era.era-classic::before, .era.era-classic::after {
-  content: ""; height: 0; flex: 1; border-top: 2px dashed var(--sepia-deep);
-}
-.era.era-classic .rainbow-bar { display: none; }
 
 /* board states */
 .board-state { padding-block: 2.6rem; color: var(--dim); font-size: .9rem;
@@ -406,7 +388,7 @@ a:hover { background: var(--hue-1); border-bottom-color: var(--ink); }
   </section>
 
   <section class="wrap board-zone" aria-label="arrivals board">
-    <h2 class="board-title">THE HALL OF SHELLS <span class="note">newest first, like the news. The old ones are in black &amp; white — like the history they are.</span></h2>
+    <h2 class="board-title">THE HALL OF SHELLS</h2>
     <div class="cols" aria-hidden="true">
       <span>№</span><span>SHELL</span><span>CVE</span>
       <span>ARRIVED</span><span>GAP</span><span>SRC</span>
@@ -624,17 +606,7 @@ function renderStats(stats) {
 function renderBoard(vulns) {
   const board = document.getElementById("board");
   board.innerHTML = "";
-  let lastEra = null;
   [...vulns].reverse().forEach((v, ri) => {
-    if (v.era !== lastEra) {
-      const era = document.createElement("li");
-      era.className = "era " + (v.era === "wave" ? "era-wave" : "era-classic");
-      era.innerHTML = v.era === "wave"
-        ? `<span class="rainbow-bar" aria-hidden="true"></span><span class="era-label">THE 2026 WAVE — IN GLORIOUS TECHNICOLOR</span><span class="rainbow-bar" aria-hidden="true"></span>`
-        : `<span class="era-label">THE GENESIS ERA — 2021–22, IN BLACK &amp; WHITE</span>`;
-      board.appendChild(era);
-      lastEra = v.era;
-    }
     const li = document.createElement("li");
     li.className = "arrival";
     const gap = ri < vulns.length - 1

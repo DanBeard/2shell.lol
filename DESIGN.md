@@ -10,9 +10,8 @@ counter survives as the product's instrument; everything around it got loud.
 The rainbow is data encoding, not decoration: **the 2026 wave is full
 technicolor, the genesis era is sepia.** Each wave arrival takes the next hue
 off a fixed seven-slot candy wheel; classic-era arrivals take the same chip
-shape in vintage sepia. The board literally shows the genre going from black
-& white to color. Era dividers agree: THE 2026 WAVE gets the rainbow-bar
-artifact with a sticker label; THE GENESIS ERA gets a dashed sepia rule.
+shape in vintage sepia — era is encoded in the row's chip, no dividers, no
+labels.
 
 ## Palette
 
@@ -58,9 +57,11 @@ SaaS-landing. Hierarchy by size, case, borders, chips, and hue.
 - **Stats strip**: four hue-cycled sticker blocks (yellow/mint/sky/lavender).
 - **Arrival row**: № in a hue chip (pops on hover: grows its block shadow),
   name+tech, CVE chips right-aligned, ARR date, tabular gap, SRC↗ ticket,
-  one-line summary. Full-width ruled rows (2px ink) — the forge-raise kept.
-- **Rainbow bar**: the GeoCities `<hr>` as a real component — era dividers
-  and the 404 page.
+  one-line summary. One continuous table, full-width ruled rows (2px ink);
+  the column header is the rainbow bar (the GeoCities `<hr>` as the table
+  head).
+- **Rainbow bar**: the GeoCities `<hr>` as a real component — the arrivals
+  table header and the 404 page.
 - **Ticker**: a scrolling rainbow strip with ink text (aria-hidden,
   hover-pause, static under reduced-motion) — the world's own artifact.
 - **Snippet**: the one dark element — an ink terminal sticker on cream.
@@ -86,5 +87,4 @@ rings, themed selection/scrollbar. Contrast: ink-on-hues ≥6.9:1, dim ≥7:1.
 
 ## Voice
 
-Same deadpan, louder packaging. "The old ones are in black & white — like
-the history they are."
+Short. The lines say the thing and stop.
