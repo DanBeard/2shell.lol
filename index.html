@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2shell.lol — days since the last 2Shell</title>
+<meta name="description" content="The internet's shellpocalypse scoreboard: it has been X days since the last 2Shell-named vulnerability. Every shell, every CVE, every gap — counted.">
+<meta property="og:title" content="2shell.lol — the shellpocalypse scoreboard">
+<meta property="og:description" content="Days since the last 2Shell-named vulnerability, and the complete arrivals board. Bot-fed. Human-merged. Snark in the copy, facts in the fields.">
+<meta property="og:url" content="https://2shell.lol/">
+<meta name="theme-color" content="#141417">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="8" fill="%23141417"/><rect y="31" width="64" height="2" fill="%230b0b0e"/><text x="32" y="42" font-family="monospace" font-size="30" font-weight="bold" fill="%23f2ede4" text-anchor="middle">2S</text></svg>'>
+<style>
+@font-face {
+  font-family: 'Departure Mono';
+  src: url('assets/fonts/DepartureMono-Regular.woff2') format('woff2'),
+       url('assets/fonts/DepartureMono-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --ground: #141417;
+  --panel: #191920;
+  --tile-t: #202027;      /* flap tile, lit half (light from the room) */
+  --tile-b: #16161c;      /* flap tile, shadowed half */
+  --seam: #0b0b0e;
+  --ivory: #f2ede4;       /* flap letters */
+  --dim: #9b968b;         /* secondary text — tinted, never gray-flat */
+  --faint: #8a8478;
+  --amber: #ffb000;       /* the one saturated ink: live things */
+  --amber-deep: #8f6400;
+  --rule: #2a2a31;
+  --lit-classic: #b7b1a4; /* genesis-era lamp: lit, but cold */
+  --unlit: #34343b;
+  --focus: #ffb000;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scrollbar-color: #2e2e36 var(--ground); }
+
+body {
+  background: var(--ground);
+  color: var(--ivory);
+  font-family: 'Departure Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+::selection { background: var(--amber); color: var(--ground); }
+a { color: var(--amber); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.wrap { width: min(1100px, 100% - 2.5rem); margin-inline: auto; }
+
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden;
+      clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ------------------------------------------------------------------ */
+/* station header                                                      */
+/* ------------------------------------------------------------------ */
+.station { border-bottom: 1px solid var(--rule); }
+.station .wrap {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding-block: 1.1rem;
+}
+.brand { display: flex; align-items: center; gap: .65rem; white-space: nowrap; }
+.brand .flap { font-size: 1.35rem; }
+.brand .tld { color: var(--dim); font-size: 1.35rem; }
+.station-meta { color: var(--dim); font-size: .8rem; letter-spacing: .04em;
+                text-align: right; }
+.station-meta b { color: var(--ivory); font-weight: 400; }
+
+/* ------------------------------------------------------------------ */
+/* split-flap tiles                                                    */
+/* ------------------------------------------------------------------ */
+.flap {
+  position: relative; display: inline-block;
+  width: 1.32em; height: 1.8em;
+  border-radius: .09em;
+}
+.flap .fh {
+  position: absolute; left: 0; right: 0; height: 50%; overflow: hidden;
+}
+.flap .fh-t { top: 0; background: var(--tile-t);
+              border-radius: .09em .09em 0 0; }
+.flap .fh-b { bottom: 0; background: var(--tile-b);
+              border-top: .06em solid var(--seam);
+              border-radius: 0 0 .09em .09em; }
+.flap i {
+  font-style: normal; display: block;
+  height: 1.8em; line-height: 1.8em; text-align: center;
+}
+.flap .fh-b i { transform: translateY(-.9em); }
+
+/* ------------------------------------------------------------------ */
+/* counter zone (the instrument)                                       */
+/* ------------------------------------------------------------------ */
+.counter-zone {
+  display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(17rem, 1fr);
+  gap: 3rem; align-items: start;
+  padding-block: 3.2rem 2.6rem;
+}
+.counter { user-select: none; }
+.counter .display { display: flex; gap: .22rem; align-items: flex-end; }
+.counter .flap { font-size: clamp(4.6rem, 17vw, 11rem); }
+.counter-label {
+  margin-top: 1.35rem; color: var(--ivory); font-size: clamp(.95rem, 2.2vw, 1.2rem);
+  letter-spacing: .04em;
+}
+.counter-sub { margin-top: .55rem; color: var(--dim); font-size: .85rem;
+               letter-spacing: .02em; }
+.counter-sub b { color: var(--amber); font-weight: 400; }
+.counter.live-arrival .counter-label::after {
+  content: "— A NEW SHELL HAS ARRIVED. WELCOME TO THE FUTURE.";
+  color: var(--amber);
+}
+
+/* next-service panel */
+.service {
+  border: 1px solid var(--rule); background: var(--panel);
+  padding: 1.4rem 1.5rem 1.5rem;
+}
+.service .svc-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  color: var(--dim); font-size: .78rem; letter-spacing: .14em;
+  padding-bottom: .8rem; border-bottom: 1px solid var(--rule);
+}
+.service .svc-eta {
+  font-size: 2.6rem; line-height: 1.1; padding-block: 1rem .4rem;
+}
+.service .svc-eta small { font-size: 1.1rem; color: var(--dim); }
+.service.overdue .svc-eta { color: var(--amber); }
+.service .svc-note { color: var(--dim); font-size: .8rem; line-height: 1.7; }
+.service .svc-note b { color: var(--ivory); font-weight: 400; }
+.service .svc-due { margin-top: .9rem; font-size: .85rem; color: var(--ivory); }
+.service.overdue .svc-due { color: var(--amber); }
+
+/* stats strip */
+.stats {
+  border-block: 1px solid var(--rule);
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  padding-block: .95rem;
+}
+.stat { padding-inline: 1.4rem; border-left: 1px solid var(--rule); }
+.stat:first-child { border-left: 0; padding-left: 0; }
+.stat .k { color: var(--dim); font-size: .72rem; letter-spacing: .12em; }
+.stat .v { font-size: 1.25rem; margin-top: .15rem; }
+.stat .v em { font-style: normal; color: var(--dim); font-size: .8rem; }
+
+/* ------------------------------------------------------------------ */
+/* arrivals board                                                      */
+/* ------------------------------------------------------------------ */
+.board-zone { padding-block: 2.8rem 2.2rem; }
+.board-title {
+  font-size: 1.32rem; letter-spacing: .05em; padding-bottom: 1.3rem;
+  display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+}
+.board-title .note { color: var(--dim); font-size: .8rem; }
+
+.cols, .arrival {
+  display: grid;
+  grid-template-columns: 1.5rem 5.2ch minmax(0, 1fr) max-content 13ch 6ch 3.2rem;
+  column-gap: 1.2rem; align-items: baseline;
+}
+.cols {
+  color: var(--dim); font-size: .72rem; letter-spacing: .14em;
+  padding-bottom: .55rem; border-bottom: 1px solid var(--rule);
+}
+.board { list-style: none; }
+.arrival {
+  padding-block: 1.05rem 1.15rem;
+  border-bottom: 1px solid var(--rule);
+}
+.arrival:hover { background: var(--panel); }
+.arrival .no { color: var(--dim); font-size: .85rem; }
+.arrival .no i { font-style: normal; color: var(--ivory); }
+.arrival .name { font-size: 1.28rem; letter-spacing: .02em; }
+.arrival .name a { color: var(--ivory); }
+.arrival .name a:hover { color: var(--amber); text-decoration: none; }
+.arrival .tech { display: block; color: var(--dim); font-size: .8rem;
+                 letter-spacing: .04em; margin-top: .1rem; }
+.arrival .cves { font-size: .74rem; color: var(--dim); text-align: right;
+                 line-height: 1.8; max-width: 26ch; }
+.arrival .cves a { color: inherit; }
+.arrival .cves a:hover { color: var(--amber); }
+.arrival .arr { font-size: .85rem; }
+.arrival .arr small { display: block; color: var(--dim); font-size: .68rem;
+                      letter-spacing: .12em; }
+.arrival .gap { text-align: right; font-size: .85rem;
+                font-variant-numeric: tabular-nums; }
+.arrival .src { font-size: .74rem; }
+.arrival .sum { grid-column: 3 / -1; color: var(--dim); font-size: .85rem;
+                margin-top: .55rem; max-width: 72ch; }
+.arrival .sum b { color: var(--ivory); font-weight: 400; }
+
+.lamp {
+  width: .78rem; height: .78rem; border: 1px solid var(--unlit);
+  background: transparent; border-radius: 1px;
+  align-self: center;
+}
+.lamp.wave { background: var(--amber); border-color: var(--amber-deep); }
+.lamp.classic { background: var(--lit-classic); border-color: var(--lit-classic); }
+
+/* row hover: the № tile's top flap half-tilts — the board acknowledging you */
+@media (prefers-reduced-motion: no-preference) {
+  .arrival .no i { display: inline-block; transform-origin: 50% 100%;
+                   transition: transform .18s cubic-bezier(.2,.7,.3,1); }
+  .arrival:hover .no i { transform: rotateX(-38deg); }
+  .arrival .lamp { transition: box-shadow .18s; }
+}
+.arrival:hover .lamp.wave { box-shadow: 0 0 0 3px rgba(255,176,0,.18); }
+
+/* era dividers */
+.era {
+  display: flex; align-items: center; gap: 1.1rem;
+  padding-block: 1.9rem 1rem; color: var(--dim);
+  font-size: .78rem; letter-spacing: .18em;
+}
+.era::before, .era::after { content: ""; height: 1px; background: var(--rule); flex: 1; }
+.era.era-wave { color: var(--amber); }
+
+/* board states (loading / error / empty print as board states) */
+.board-state {
+  padding-block: 2.6rem; color: var(--dim); font-size: .9rem;
+  letter-spacing: .04em; text-align: center;
+}
+.board-state b { color: var(--amber); font-weight: 400; }
+
+/* ------------------------------------------------------------------ */
+/* add-a-shell panel                                                   */
+/* ------------------------------------------------------------------ */
+.add-zone { padding-block: 2.6rem 2.2rem; }
+.add-grid {
+  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+  gap: 3rem; align-items: start;
+}
+.add-steps { list-style: none; counter-reset: step; margin-top: 1.6rem; }
+.add-steps li {
+  counter-increment: step;
+  padding-block: 1rem 1.05rem;
+  border-bottom: 1px solid var(--rule);
+  padding-left: 3.4rem; position: relative;
+  color: var(--dim); font-size: .92rem; line-height: 1.65;
+}
+.add-steps li b { color: var(--ivory); font-weight: 400; }
+.add-steps li::before {
+  content: "[" counter(step, decimal-leading-zero) "]";
+  position: absolute; left: 0; top: 1rem;
+  color: var(--amber); font-size: .92rem;
+}
+.bot-note {
+  margin-top: 1.5rem; padding: 1rem 1.2rem;
+  border: 1px solid var(--rule); color: var(--dim); font-size: .82rem;
+  line-height: 1.7;
+}
+.bot-note b { color: var(--amber); font-weight: 400; }
+.snippet {
+  border: 1px solid var(--rule); background: var(--panel);
+  padding: 1.2rem 1.3rem; font-size: .74rem; line-height: 1.75;
+  color: var(--dim); overflow-x: auto;
+}
+.snippet b { color: var(--ivory); font-weight: 400; }
+.snippet .k { color: var(--amber); }
+
+/* ------------------------------------------------------------------ */
+/* ticker + footer                                                     */
+/* ------------------------------------------------------------------ */
+.ticker {
+  border-top: 1px solid var(--rule); overflow: hidden; white-space: nowrap;
+  padding-block: .75rem; margin-top: auto;
+}
+.ticker-track { display: inline-flex; }
+.ticker span { display: inline-block; padding-right: 3.5rem;
+               font-size: .78rem; letter-spacing: .12em; color: var(--dim); }
+.footer {
+  border-top: 1px solid var(--rule); color: var(--dim);
+  font-size: .72rem; letter-spacing: .03em; line-height: 1.8;
+  padding-block: 1.3rem;
+}
+.footer .wrap { display: flex; justify-content: space-between; gap: 1.5rem;
+                flex-wrap: wrap; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ticker-track { animation: ticker 60s linear infinite; }
+  .ticker:hover .ticker-track { animation-play-state: paused; }
+}
+@keyframes ticker { from { transform: translateX(0); }
+                    to   { transform: translateX(-50%); } }
+
+/* ------------------------------------------------------------------ */
+/* responsive                                                          */
+/* ------------------------------------------------------------------ */
+@media (max-width: 880px) {
+  .counter-zone { grid-template-columns: 1fr; gap: 2rem; }
+  .service { max-width: 30rem; }
+  .stats { grid-template-columns: repeat(2, 1fr); row-gap: 1.1rem; }
+  .stat:nth-child(3) { border-left: 0; padding-left: 0; }
+  .add-grid { grid-template-columns: 1fr; gap: 2rem; }
+}
+@media (max-width: 720px) {
+  .cols { display: none; }
+  .arrival { grid-template-columns: 1.5rem 4.6ch minmax(0, 1fr) max-content;
+             row-gap: .45rem; }
+  .arrival .cves { grid-row: 3; grid-column: 1 / -1; text-align: left; max-width: none; }
+  .arrival .arr { grid-row: 2; grid-column: 3; }
+  .arrival .arr small { display: inline; margin-left: .5rem; }
+  .arrival .gap { grid-row: 2; grid-column: 4; }
+  .arrival .src { grid-row: 2; grid-column: 1; }
+  .arrival .sum { grid-column: 1 / -1; }
+  .counter .flap { font-size: clamp(3.4rem, 15.5vw, 6rem); }
+}
+@media (max-width: 480px) {
+  .station-meta .when { display: none; }
+  .arrival .name { font-size: 1.05rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="station">
+  <div class="wrap">
+    <div class="brand">
+      <span class="flapset" id="brand-flaps" aria-hidden="true"></span><span class="tld">.lol</span>
+      <span class="vh">2shell.lol</span>
+    </div>
+    <div class="station-meta">
+      TERMINAL: <b>SHELLPOCALYPSE</b><br>
+      <span class="when" id="today-line">— — —</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1 class="vh">2shell.lol: it has been a countable number of days since the last 2Shell-named vulnerability, and this page is the counter</h1>
+  <section class="wrap counter-zone" aria-label="days since the last 2Shell">
+
+    <div class="counter" id="counter">
+      <div class="display" id="counter-display" role="img"
+           aria-label="days since the last 2Shell-named vulnerability"></div>
+      <p class="counter-label" id="counter-label">DAYS SINCE THE LAST 2SHELL-NAMED VULNERABILITY</p>
+      <p class="counter-sub" id="counter-sub">SWEEPING SIGNALS…</p>
+    </div>
+
+    <aside class="service" id="service" aria-label="estimated wait to the next shell">
+      <div class="svc-head"><span>NEXT SERVICE</span><span>EST. 2SHELL</span></div>
+      <div class="svc-eta" id="svc-eta">— <small>DAYS</small></div>
+      <p class="svc-note" id="svc-note">
+        Median of the wave so far <b id="median-wave">—</b> · all-time median <b id="median-all">—</b>.
+        Confidence: <b>none</b>. This is a joke that occasionally predicts the future.
+      </p>
+      <p class="svc-due" id="svc-due">DUE: —</p>
+    </aside>
+  </section>
+
+  <section class="wrap">
+    <div class="stats" id="stats" aria-label="board statistics"></div>
+  </section>
+
+  <section class="wrap board-zone" aria-label="arrivals board">
+    <h2 class="board-title">ARRIVALS <span class="note">newest first, like the news: every shell, its CVEs, its date, its gap</span></h2>
+    <div class="cols" aria-hidden="true">
+      <span></span><span>№</span><span>SHELL</span><span>CVE</span>
+      <span>ARRIVED</span><span>GAP</span><span>SRC</span>
+    </div>
+    <ol class="board" id="board">
+      <li class="board-state" id="board-state">PANEL SWEEP IN PROGRESS<span class="vh">loading data</span></li>
+    </ol>
+  </section>
+
+  <section class="wrap add-zone" aria-label="add a shell">
+    <h2 class="board-title">MISSING ONE? <span class="note">the board takes pull requests</span></h2>
+    <div class="add-grid">
+      <div>
+        <ol class="add-steps">
+          <li><b>Fork the repo</b> and add your shell to <b>data/vulns.json</b>: name, disclosure date, CVEs, affected tech, one-line summary. <a href="data/vulns.json">The live file is right here.</a></li>
+          <li><b>Open a PR.</b> CI checks the shape; a human merges it. Snark in the copy, facts in the fields. Membership rule: a real, publicly disclosed vulnerability whose branded name ends in <b>Shell</b>.</li>
+          <li><b>The counter resets the moment you merge.</b> Yes. That's on you.</li>
+        </ol>
+        <p class="bot-note"><b>There is also a bot.</b> It reads the security social firehose every six hours and opens PRs for new candidates on its own. Beat it to one and your shell arrives with your name on the ticket.</p>
+      </div>
+      <pre class="snippet">{
+  <span class="k">"name"</span>:    "<b>Your2Shell</b>",
+  <span class="k">"date"</span>:    "<b>YYYY-MM-DD</b>",
+  <span class="k">"cves"</span>:    [<b>"CVE-2026-…"</b>],
+  <span class="k">"tech"</span>:    "<b>what it breaks</b>",
+  <span class="k">"summary"</span>: "<b>one line, ideally funny</b>",
+  <span class="k">"era"</span>: "<b>wave|classic</b>",
+  <span class="k">"url"</span>: "<b>a real source</b>",
+  <span class="k">"added_by"</span>: "<b>you</b>"
+}</pre>
+    </div>
+  </section>
+</main>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="ticker"></div>
+</div>
+
+<footer class="footer">
+  <div class="wrap">
+    <span>NOT AFFILIATED WITH ANY SHELL, ANY VENDOR, OR ANY NAMING CONSULTANT.</span>
+    <span>DATA: <a href="data/vulns.json">JSON, CC0 — TAKE IT</a> · RUN BY A HUMAN AND A CRON JOB</span>
+  </div>
+</footer>
+
+<noscript>
+  <div class="wrap"><p style="color:var(--dim);padding:1rem 0 2rem">
+  THE BOARD NEEDS JAVASCRIPT TO FLIP — but the data doesn't:
+  <a href="data/vulns.json">the full arrivals list is a plain JSON file</a>.
+  </p></div>
+</noscript>
+
+<script>
+/* ------------------------------------------------------------------ */
+/* pure logic — no DOM (node-testable)                                 */
+/* ------------------------------------------------------------------ */
+
+const DAY = 86400000;
+
+function parseVulns(data) {
+  const vulns = (data.vulns || []).filter(v => v && v.name && v.date)
+    .map(v => ({ ...v, ts: Date.parse(v.date + "T00:00:00Z") }))
+    .filter(v => !isNaN(v.ts))
+    .sort((a, b) => a.ts - b.ts);           // oldest first
+  return vulns;
+}
+
+function median(xs) {
+  if (!xs.length) return null;
+  const s = [...xs].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+function computeStats(vulns, nowMs) {
+  const n = vulns.length;
+  if (!n) return null;
+  const latest = vulns[n - 1];
+  const today = Math.floor(nowMs / DAY) * DAY;
+  const daysSince = Math.max(0, Math.round((today - latest.ts) / DAY));
+  const gaps = [];
+  for (let i = 1; i < n; i++) gaps.push(Math.round((vulns[i].ts - vulns[i-1].ts) / DAY));
+  const waveGaps = gaps.filter((g, i) =>
+    vulns[i].era === "wave" && vulns[i + 1].era === "wave");
+  const medianAll = median(gaps);
+  const medianWave = median(waveGaps);
+  const eta = medianWave != null ? medianWave : medianAll;
+  const dueMs = latest.ts + (eta || 0) * DAY;
+  const pct = gaps.length ? gaps.filter(g => g < daysSince).length / gaps.length : null;
+  return {
+    n, latest, daysSince, gaps, waveGaps,
+    medianAll, medianWave, eta,
+    overdue: daysSince > eta,
+    dueMs, pct,
+    longestCalm: gaps.length ? Math.max(...gaps) : null,
+  };
+}
+
+function fmtDate(ts) {
+  const M = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+  const d = new Date(ts);
+  return `${String(d.getUTCDate()).padStart(2,"0")} ${M[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+function pad4(n) { return String(n).padStart(4, "0"); }
+
+/* ------------------------------------------------------------------ */
+/* DOM                                                                 */
+/* ------------------------------------------------------------------ */
+
+function flapTile(ch) {
+  const f = document.createElement("span");
+  f.className = "flap";
+  f.innerHTML = `<span class="fh fh-t"><i>${ch}</i></span><span class="fh fh-b"><i>${ch}</i></span>`;
+  return f;
+}
+
+function setFlap(tile, ch) {
+  tile.querySelectorAll("i").forEach(i => i.textContent = ch);
+}
+
+const FLIP_CHARS = "0123456789X2S";
+
+function flapSettle(tile, finalChar, delay) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) { setFlap(tile, finalChar); return; }
+  let ticks = 0;
+  const total = 7 + Math.floor(Math.random() * 5);
+  setTimeout(function tick() {
+    if (ticks < total) {
+      setFlap(tile, FLIP_CHARS[Math.floor(Math.random() * FLIP_CHARS.length)]);
+      ticks++;
+      setTimeout(tick, 55 + ticks * 9);
+    } else setFlap(tile, finalChar);
+  }, delay);
+}
+
+function renderCounter(stats) {
+  const display = document.getElementById("counter-display");
+  const label = document.getElementById("counter-label");
+  const sub = document.getElementById("counter-sub");
+  display.innerHTML = "";
+  display.setAttribute("aria-label",
+    stats.daysSince + " days since the last 2Shell-named vulnerability");
+  const chars = String(stats.daysSince).padStart(3, "0").split("");
+  chars.forEach((ch, i) => {
+    const tile = flapTile("0");
+    display.appendChild(tile);
+    flapSettle(tile, ch, 350 + i * 180);
+  });
+  if (stats.daysSince === 0) document.getElementById("counter").classList.add("live-arrival");
+  label.textContent = "DAYS SINCE THE LAST 2SHELL-NAMED VULNERABILITY";
+  sub.innerHTML = `LAST ARRIVAL: <b>${stats.latest.name.toUpperCase()}</b> · ${fmtDate(stats.latest.ts)}` +
+    (stats.latest.era === "wave" ? "" : "  <span style='color:var(--faint)'>(the genre never really went away)</span>");
+}
+
+function renderService(stats, nowMs) {
+  const svc = document.getElementById("service");
+  document.getElementById("svc-eta").innerHTML = `~${stats.eta ?? "—"} <small>DAYS</small>`;
+  document.getElementById("median-wave").textContent = stats.medianWave != null ? stats.medianWave + "d" : "—";
+  document.getElementById("median-all").textContent = stats.medianAll != null ? stats.medianAll + "d" : "—";
+  document.getElementById("svc-due").textContent =
+    "DUE: " + (stats.eta != null ? fmtDate(stats.latest.ts + stats.eta * DAY) : "—");
+  if (stats.overdue) {
+    svc.classList.add("overdue");
+    document.getElementById("svc-due").textContent += ". OVERDUE. STATISTICALLY, WE ARE DUE.";
+  }
+}
+
+function renderStats(stats) {
+  const pctLine = stats.pct != null
+    ? `LONGER THAN ${Math.round(stats.pct * 100)}% OF GAPS SO FAR`
+    : "—";
+  document.getElementById("stats").innerHTML = [
+    ["SHELLS ON RECORD", pad4(stats.n)],
+    ["MEDIAN INTER-ARRIVAL", (stats.medianAll ?? "—") + "<em>d</em>"],
+    ["LONGEST CALM", (stats.longestCalm ?? "—") + "<em>d</em>"],
+    ["THIS QUIET PERIOD", stats.daysSince + "<em>d</em> — " + pctLine],
+  ].map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+}
+
+function renderBoard(vulns) {
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+  let lastEra = null;
+  [...vulns].reverse().forEach((v, ri) => {
+    if (v.era !== lastEra) {
+      const era = document.createElement("li");
+      era.className = "era " + (v.era === "wave" ? "era-wave" : "");
+      era.textContent = v.era === "wave" ? "THE 2026 WAVE" : "THE GENESIS ERA — 2021–22";
+      board.appendChild(era);
+      lastEra = v.era;
+    }
+    const li = document.createElement("li");
+    li.className = "arrival";
+    const gap = ri < vulns.length - 1
+      ? "+" + Math.round((v.ts - vulns[ri + 1].ts) / DAY) + "d"
+      : "—";
+    const num = pad4(vulns.length - ri);
+    const cves = (v.cves || []).map(c =>
+      `<a href="https://nvd.nist.gov/vuln/detail/${c}" title="${c} on NVD">${c.replace("CVE-", "")}</a>`).join("<br>")
+      || "<span style='color:var(--faint)'>—</span>";
+    const src = v.url ? `<a href="${v.url}" aria-label="source for ${v.name}">SRC↗</a>` : "—";
+    li.innerHTML = `
+      <span class="lamp ${v.era}" aria-hidden="true"></span>
+      <span class="no">№<i>${num}</i></span>
+      <span class="name">${v.url ? `<a href="${v.url}">${v.name}</a>` : v.name}<span class="tech">${v.tech || ""}</span></span>
+      <span class="cves">${cves}</span>
+      <span class="arr"><small>ARR</small>${fmtDate(v.ts)}</span>
+      <span class="gap">${gap}</span>
+      <span class="src">${src}</span>
+      <span class="sum">${v.summary || ""}</span>`;
+    board.appendChild(li);
+  });
+}
+
+function renderTicker(stats) {
+  const base = `IT HAS BEEN ${stats.daysSince} DAYS SINCE THE LAST 2SHELL` +
+    ` · LAST ARRIVAL: ${stats.latest.name.toUpperCase()} ${fmtDate(stats.latest.ts)}` +
+    ` · ${stats.n} SHELLS ON RECORD` +
+    ` · EST. WAIT TO NEXT: ~${stats.eta} DAYS (CONFIDENCE: NONE)` +
+    ` · THIS BOARD IS MAINTAINED BY A BOT WITH A MASTODON PROBLEM AND BY WHOEVER IS READING THIS` +
+    ` · `;
+  document.getElementById("ticker").innerHTML = `<span>${base}</span><span>${base}</span>`;
+}
+
+function boardState(html) {
+  document.getElementById("board").innerHTML =
+    `<li class="board-state">${html}</li>`;
+}
+
+async function init() {
+  document.getElementById("today-line").textContent = fmtDate(Date.now()) + " UTC";
+  const brand = document.getElementById("brand-flaps");
+  "2SHELL".split("").forEach(ch => brand.appendChild(flapTile(ch)));
+
+  let data;
+  try {
+    const res = await fetch("data/vulns.json?v=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    data = await res.json();
+  } catch (e) {
+    boardState(`DEPARTURES UNAVAILABLE. THE BOARD CANNOT REACH <b>data/vulns.json</b>.<br>
+      (Are you offline? The data file lives <a href="data/vulns.json">right here</a>.)`);
+    ["0","0","0"].forEach((c,i) => {
+      const t = flapTile("–"); document.getElementById("counter-display").appendChild(t);
+      setFlap(t, "–");
+    });
+    document.getElementById("counter-sub").textContent = "SIGNAL LOST";
+    return;
+  }
+  const vulns = parseVulns(data);
+  const stats = computeStats(vulns, Date.now());
+  if (!stats) { boardState("THE BOARD IS EMPTY. WHICH IS TECHNICALLY GOOD NEWS."); return; }
+  renderCounter(stats);
+  renderService(stats);
+  renderStats(stats);
+  renderBoard(vulns);
+  renderTicker(stats);
+}
+
+if (typeof document !== "undefined" && document.getElementById("board")) {
+  init();
+}
+/* node test hook */
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { parseVulns, computeStats, median, fmtDate, pad4, DAY };
+}
+</script>
+</body>
+</html>

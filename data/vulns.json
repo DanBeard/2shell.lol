@@ -1,0 +1,59 @@
+{
+  "vulns": [
+    {
+      "name": "Log4Shell",
+      "date": "2021-12-09",
+      "cves": ["CVE-2021-44228"],
+      "tech": "Apache Log4j 2",
+      "summary": "The genre founder. A JNDI lookup feature let any Java app on Earth ask an LDAP server for code and then run the answer. CVSS 10.0. The reason the industry now has a vulnerability-naming budget.",
+      "url": "https://en.wikipedia.org/wiki/Log4Shell",
+      "era": "classic",
+      "added_by": "dbeard",
+      "added": "2026-11-09"
+    },
+    {
+      "name": "Spring4Shell",
+      "date": "2022-03-31",
+      "cves": ["CVE-2022-22965"],
+      "tech": "Spring Framework",
+      "summary": "Spring Framework RCE via data binding on JDK 9+. Named by pure momentum — the internet was still shell-shy from December. Proof the genre had legs.",
+      "url": "https://en.wikipedia.org/wiki/Spring4Shell",
+      "era": "classic",
+      "added": "2026-11-09",
+      "added_by": "dbeard"
+    },
+    {
+      "name": "Text4Shell",
+      "date": "2022-10-13",
+      "cves": ["CVE-2022-42889"],
+      "tech": "Apache Commons Text",
+      "summary": "Apache Commons Text looked at the calendar, saw October, and shipped a string interpolator that reached out to the internet. Textbook third-act behavior.",
+      "url": "https://en.wikipedia.org/wiki/Text4Shell",
+      "era": "classic",
+      "added": "2026-11-09",
+      "added_by": "dbeard"
+    },
+    {
+      "name": "wp2shell",
+      "date": "2026-07-17",
+      "cves": ["CVE-2026-63030", "CVE-2026-60137"],
+      "tech": "WordPress core",
+      "summary": "Pre-auth RCE chain: REST API route confusion → SQLi → admin account → webshell plugin, on a default install. Forced auto-updates, 62k+ attacking IPs. Lowercase — by now the genre is self-aware.",
+      "url": "https://www.wordfence.com/blog/2026/07/wp2shell-wordpress-exploit-technical-analysis-and-real-attack-data/",
+      "era": "wave",
+      "added": "2026-11-09",
+      "added_by": "dbeard"
+    },
+    {
+      "name": "PHP2Shell",
+      "date": "2026-10-20",
+      "cves": ["CVE-2026-109618", "CVE-2026-109619"],
+      "tech": "PHP engine",
+      "summary": "Two memory-safety bugs in the PHP engine itself, found with AI assistance in August, dropped early on Oct 20. ~70% of the web in scope. Own Wikipedia page, own .com, CISA alert. The genre's Sgt. Pepper's.",
+      "url": "https://en.wikipedia.org/wiki/PHP2Shell",
+      "era": "wave",
+      "added": "2026-11-09",
+      "added_by": "dbeard"
+    }
+  ]
+}

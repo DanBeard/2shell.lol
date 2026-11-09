@@ -1,0 +1,92 @@
+# 2shell.lol
+
+**It has been a countable number of days since the last 2Shell-named
+vulnerability.** This is the scoreboard.
+
+The internet spent 2026 inventing a new branded vulnerability roughly every
+time the meme budget allowed — `wp2shell`, `PHP2Shell`, and friends, each
+with its own website, its own logo, its own Wikipedia page. The naming wave
+that [Log4Shell](https://en.wikipedia.org/wiki/Log4Shell) started in 2021
+became a genre. This page keeps the box score: the counter, the complete
+arrivals list, the gaps between them, and an over/under on the next one that
+has no right to be as accurate as it occasionally is.
+
+The whole site is one static page + one JSON file, hosted on GitHub Pages.
+No framework, no build, no tracking. Fork away.
+
+## Membership rule
+
+A shell gets on the board if it is a **real, publicly disclosed
+vulnerability whose branded name ends in "Shell"** (Log4Shell, Spring4Shell,
+Text4Shell, wp2shell, PHP2Shell…). Parody names, rumors, and things that
+turned out to be marketing are not shells. The digit is whatever the
+branders chose; the genre accepts both 2s and 4s. The two eras are framing
+only: `classic` (the 2021–22 genre-founding era) and `wave` (the 2026
+2Shell wave).
+
+## Add one (PR guide)
+
+1. Fork and edit **[`data/vulns.json`](data/vulns.json)** — one entry:
+
+   ```json
+   {
+     "name": "Your2Shell",
+     "date": "2026-11-01",
+     "cves": ["CVE-2026-000000"],
+     "tech": "what it breaks",
+     "summary": "one line, ideally funny",
+     "url": "a primary source",
+     "era": "wave",
+     "added_by": "your-handle",
+     "added": "2026-11-09"
+   }
+   ```
+
+   - `date` = the day it went public (disclosure day), not the day you heard
+     about it.
+   - `summary` = one line, max 280 chars. Snark welcome; facts mandatory.
+   - `era` = `classic` (pre-2026) or `wave`.
+   - `cves` may be `[]` if you're still researching — the board shows a dash.
+
+2. Open a PR. CI validates the shape (`scripts/validate.py`) and a human
+   merges.
+3. The counter resets the moment you merge. Yes. That's on you.
+
+## There is also a bot
+
+A tracker (a plain-stdlib Python CronJob on the maintainer's homelab, this
+repo's [`tracker/`](tracker/) directory) reads an OSINT dashboard's
+security social-signal synthesis every six hours, notices chatter about
+names matching the `*2Shell`/`*4Shell` pattern, and opens PRs by itself —
+one per candidate, with the social evidence attached. Bot PRs are drafts
+with a review checklist: a human verifies it's real, fixes the disclosure
+date, and merges. The bot proposes; humans dispose.
+
+If a bot PR beat you to your favorite shell, add your name in `added_by`
+when you clean it up. The board belongs to whoever shows up.
+
+## Repo layout
+
+| Path | Purpose |
+|------|---------|
+| `index.html` | the board (countdown, arrivals, next-service panel) |
+| `data/vulns.json` | **the product** — every shell, open data |
+| `scripts/validate.py` | JSON contract checks, run by CI on every PR |
+| `.github/workflows/validate.yml` | the CI gate |
+| `tracker/track.py` | the bot (stdlib Python; deploy notes in its docstring) |
+| `DESIGN.md` | the visual world of the board |
+
+## Data license
+
+The compiled `data/vulns.json` is released under
+[CC0](https://creativecommons.org/publicdomain/zero/1.0/). Take it, mirror
+it, build a better board. The page design likewise — though if you build a
+better board, PR the improvements back instead, cowards.
+
+## Fine print
+
+Not affiliated with any shell, any vendor, or any naming consultant. The
+"estimated days to next service" is a median of historical gaps with a
+sample size smaller than a SOC's sense of humor; it has a confidence of
+NONE and should not be used for patch planning, investing, or emotional
+preparation. Patch your PHP.

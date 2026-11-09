@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 — platform not on this board — 2shell.lol</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="8" fill="%23141417"/><rect y="31" width="64" height="2" fill="%230b0b0e"/><text x="32" y="42" font-family="monospace" font-size="30" font-weight="bold" fill="%23f2ede4" text-anchor="middle">2S</text></svg>'>
+<style>
+@font-face {
+  font-family: 'Departure Mono';
+  src: url('assets/fonts/DepartureMono-Regular.woff2') format('woff2'),
+       url('assets/fonts/DepartureMono-Regular.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+:root { --ground:#141417; --ivory:#f2ede4; --dim:#9b968b; --amber:#ffb000;
+        --rule:#2a2a31; --tile-t:#202027; --tile-b:#16161c; --seam:#0b0b0e; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--ground); color:var(--ivory); min-height:100vh;
+  font-family:'Departure Mono', ui-monospace, Menlo, monospace;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; gap:1.6rem; padding:2rem; }
+.flap { position:relative; display:inline-block; width:1.32em; height:1.8em; }
+.flap .fh { position:absolute; left:0; right:0; height:50%; overflow:hidden; }
+.flap .fh-t { top:0; background:var(--tile-t); }
+.flap .fh-b { bottom:0; background:var(--tile-b); border-top:.06em solid var(--seam); }
+.flap i { font-style:normal; display:block; height:1.8em; line-height:1.8em; text-align:center; }
+.flap .fh-b i { transform:translateY(-.9em); }
+.row { font-size:2.4rem; }
+h1 { font-size:1rem; letter-spacing:.14em; color:var(--ivory); }
+p { color:var(--dim); font-size:.85rem; line-height:1.8; max-width:44ch; }
+a { color:var(--amber); text-decoration:none; }
+a:hover { text-decoration:underline; text-underline-offset:3px; }
+</style>
+</head>
+<body>
+<div class="row" aria-hidden="true">
+  <span class="flap"><span class="fh fh-t"><i>4</i></span><span class="fh fh-b"><i>4</i></span></span><span class="flap"><span class="fh fh-t"><i>0</i></span><span class="fh fh-b"><i>0</i></span></span><span class="flap"><span class="fh fh-t"><i>4</i></span><span class="fh fh-b"><i>4</i></span></span>
+</div>
+<h1>THIS PLATFORM DOES NOT EXIST.</h1>
+<p>The board only serves one destination. It has been some number of days
+since the last 2Shell: <a href="/">check the counter</a>.</p>
+</body>
+</html>
