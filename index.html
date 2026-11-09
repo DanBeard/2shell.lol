@@ -440,7 +440,7 @@ a:hover { background: var(--hue-1); border-bottom-color: var(--ink); }
     <div class="add-grid">
       <div>
         <ol class="add-steps">
-          <li><b>Fork the repo</b> and add your shell to <b>data/vulns.json</b>: name, disclosure date, CVEs, affected tech, one-line summary. <a href="data/vulns.json">The live file is right here.</a></li>
+          <li><b>Fork the repo</b> and add your shell to <b>data/vulns.json</b>: name, disclosure date, CVEs, affected tech, one-line summary. <a href="data/vulns.json" target="_blank" rel="noopener noreferrer">The live file is right here.</a></li>
           <li><b>Open a PR.</b> CI checks the shape; a human merges it. Snark in the copy, facts in the fields. Membership rule: a real, publicly disclosed vulnerability whose branded name ends in <b>Shell</b>.</li>
           <li><b>The counter resets the moment you merge.</b> Yes. That's on you.</li>
         </ol>
@@ -467,14 +467,14 @@ a:hover { background: var(--hue-1); border-bottom-color: var(--ink); }
 <footer class="footer">
   <div class="wrap">
     <span class="fine">NOT AFFILIATED WITH ANY SHELL, ANY VENDOR, OR ANY NAMING CONSULTANT · NO SHELLS WERE HARMED</span>
-    <span class="fine">DATA: <a href="data/vulns.json">JSON, CC0 — TAKE IT</a> · RUN BY A HUMAN AND A CRON JOB</span>
+    <span class="fine">DATA: <a href="data/vulns.json" target="_blank" rel="noopener noreferrer">JSON, CC0 — TAKE IT</a> · RUN BY A HUMAN AND A CRON JOB</span>
   </div>
 </footer>
 
 <noscript>
   <div class="wrap"><p style="color:var(--dim);padding:1rem 0 2rem">
   THE FLAPS DON'T FLIP WITHOUT JAVASCRIPT — but the data doesn't:
-  <a href="data/vulns.json">the full arrivals list is a plain JSON file</a>.
+  <a href="data/vulns.json" target="_blank" rel="noopener noreferrer">the full arrivals list is a plain JSON file</a>.
   </p></div>
 </noscript>
 
@@ -654,12 +654,12 @@ function renderBoard(vulns) {
     li.style.setProperty("--chip",
       v.era === "wave" ? hueVar(vulns.length - ri - 1) : "var(--sepia)");
     const cves = (v.cves || []).map(c =>
-      `<a href="https://nvd.nist.gov/vuln/detail/${c}" title="${c} on NVD">${c.replace("CVE-", "")}</a>`).join("<br>")
+      `<a href="https://nvd.nist.gov/vuln/detail/${c}" title="${c} on NVD" target="_blank" rel="noopener noreferrer">${c.replace("CVE-", "")}</a>`).join("<br>")
       || "<span style='color:var(--dim)'>none yet</span>";
-    const src = v.url ? `<a href="${v.url}" aria-label="source for ${v.name}">SRC↗</a>` : "—";
+    const src = v.url ? `<a href="${v.url}" aria-label="source for ${v.name}" target="_blank" rel="noopener noreferrer">SRC↗</a>` : "—";
     li.innerHTML = `
       <span class="no">${num}</span>
-      <span class="name">${v.url ? `<a href="${v.url}">${v.name}</a>` : v.name}<span class="tech">${v.tech || ""}</span></span>
+      <span class="name">${v.url ? `<a href="${v.url}" target="_blank" rel="noopener noreferrer">${v.name}</a>` : v.name}<span class="tech">${v.tech || ""}</span></span>
       <span class="cves">${cves}</span>
       <span class="arr"><small>ARR</small>${fmtDate(v.ts)}</span>
       <span class="gap">${gap}</span>
@@ -684,7 +684,7 @@ async function renderEggs() {
     zone.innerHTML = eggs.map(e => `
       <li class="egg">
         <span class="st st-${esc(e.status)}">${esc((e.status || "quiet").toUpperCase())}</span>
-        <span class="egg-domain"><a href="https://${esc(e.domain)}" rel="noopener">${esc(e.domain)}</a></span>
+        <span class="egg-domain"><a href="https://${esc(e.domain)}" target="_blank" rel="noopener noreferrer">${esc(e.domain)}</a></span>
         <span class="egg-score">${e.score ?? "—"}</span>
         <span class="egg-title">${esc(e.title)}</span>
       </li>`).join("");
@@ -720,7 +720,7 @@ async function init() {
     data = await res.json();
   } catch (e) {
     boardState(`DEPARTURES UNAVAILABLE. THE BOARD CANNOT REACH <b>data/vulns.json</b>.<br>
-      (Are you offline? The data file lives <a href="data/vulns.json">right here</a>.)`);
+      (Are you offline? The data file lives <a href="data/vulns.json" target="_blank" rel="noopener noreferrer">right here</a>.)`);
     for (let i = 0; i < 3; i++) {
       const t = flapTile("–", hueVar(i)); document.getElementById("counter-display").appendChild(t);
       setFlap(t, "–");
