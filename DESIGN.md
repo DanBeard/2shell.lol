@@ -40,7 +40,13 @@ SaaS-landing. Hierarchy by size, case, borders, chips, and hue.
   block shadow, split halves kept (`filter: brightness(1.07/.9)` + 2px ink
   seam). Counter digits spin the wheel; the brand spells 2SHELL in it.
 - **Day-zero state**: when daysSince = 0, tiles run a `steps(1)` hue-cycle
-  animation (reduced-motion: static), label gains "A NEW SHELL HAS ARRIVED."
+  animation (reduced-motion: static).
+- **Mood line**: a tiered sticker chip under the counter, first match wins
+  (the copy slot — see the MOODS table in index.html): 0 days = rainbow
+  "A NEW SHELL HAS ARRIVED"; 1 day = mint "ONE DAY OF CALM. SAVOR IT.";
+  beyond the all-time record calm = lavender "LONGEST CALM IN RECORDED
+  HISTORY"; ≥365 days = sky "A YEAR OF CALM"; past the over/under = yellow
+  "THE OVER/UNDER SAYS ANY DAY NOW". Quiet days show no chip at all.
 - **Header badges**: sticker chips — "THE SHELLPOCALYPSE SCOREBOARD",
   "100% ARTIFICIAL FLAVOR", live date, "BEST VIEWED AT 2AM".
 - **NEXT SERVICE panel**: white sticker panel with dashed-ink rule; overdue
