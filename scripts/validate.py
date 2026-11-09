@@ -8,7 +8,9 @@ Every entry:
   summary  — non-empty, sane length
   era      — "classic" (2021-22 genre-founding era) | "wave" (the 2026 2Shell wave)
   added / added_by — provenance
-Extra keys (evidence, cvss, url, tech, aka) are allowed and pass through.
+Extra keys (evidence, cvss, url, tech, aka) are allowed and pass through,
+but url/evidence must be http(s) URLs — a "javascript:" link in the board
+is the oldest joke in the book and the board doesn't tell it.
 Names are unique case-insensitively.
 """
 from __future__ import annotations
@@ -22,6 +24,8 @@ from pathlib import Path
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9+#.\-]{0,20}?[24][Ss]hell$")
 CVE_RE = re.compile(r"^CVE-\d{4}-\d{4,7}$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+URL_RE = re.compile(r"^https?://[^\s\"'<>]+$")
+HONORARY_RE = re.compile(r"^[^\s\"'<>]{1,30}$")
 MOOD_ID_RE = re.compile(r"^[a-z][a-z0-9-]{0,30}$")
 MOOD_CLASSES = {"mood-zero", "mood-fresh", "mood-year", "mood-due", "mood-record"}
 MOOD_KEYS = {"id", "class", "line", "min_days", "max_days", "record", "overdue"}
@@ -51,11 +55,21 @@ def main() -> int:
             if family == "honorary":
                 # honorary members skip the -Shell pattern but are still
                 # real, branded, publicly-disclosed genus members (e.g. sshhole)
-                if not name or len(str(name)) > 30:
-                    errors.append(f"{tag}: honorary name missing or silly-long")
+                if not name or not HONORARY_RE.match(str(name)):
+                    errors.append(f"{tag}: honorary name missing, over 30 chars, "
+                                  f"or contains quotes/spaces/markup")
             else:
                 errors.append(f"{tag}: name {name!r} doesn't match the *2Shell/*4Shell pattern "
                               f"(non-Shell names need \"family\": \"honorary\"")
+        for k in ("url", "evidence"):
+            u = v.get(k)
+            if u is not None and not URL_RE.match(str(u)):
+                errors.append(f"{tag}: {k} must be an http(s) URL — "
+                              f"javascript: links don't board here")
+        if v.get("tech") and len(str(v["tech"])) > 60:
+            errors.append(f"{tag}: tech over 60 chars — that's a datasheet")
+        if v.get("added_by") and len(str(v["added_by"])) > 60:
+            errors.append(f"{tag}: added_by over 60 chars")
         if name and name.lower() in {"2shell", "4shell"}:
             errors.append(f"{tag}: {name!r} is the family name, not a member")
         if name and name.lower() in seen:

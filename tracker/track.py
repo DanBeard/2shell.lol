@@ -10,7 +10,7 @@ board doesn't already list, it opens a GitHub pull request against
 correct the disclosure date, and merge. If no GitHub token is configured it
 falls back to an ntfy ping so candidates are never silently dropped.
 
-Design mirrors k8s/crucix-monitor (stdlib only, PVC state, ntfy alerts,
+Design follows the house pattern (stdlib only, PVC state, alert pings,
 fail-open on every optional dependency):
 
   1. Pull crucix /api/data; extract social clusters (reliability-ranked
@@ -26,7 +26,8 @@ fail-open on every optional dependency):
      (no token / GitHub down), suppressed to one ping per 24h per key.
 
 Stdlib only (offline-resilience rules). Canonical copy: the 2shell.lol
-repository, tracker/ — the nixnas k8s/2shell-tracker manifest builds this.
+repository, tracker/ — a small CronJob manifest builds this image on the
+maintainer's cluster.
 """
 from __future__ import annotations
 
@@ -45,7 +46,7 @@ from datetime import datetime, timedelta, timezone
 # Config (env)                                                                 #
 # --------------------------------------------------------------------------- #
 
-CRUCIX_URL = os.environ.get("CRUCIX_URL", "http://crucix:3117").rstrip("/")
+CRUCIX_URL = os.environ.get("CRUCIX_URL", "").rstrip("/")
 CRUCIX_TIMEOUT = float(os.environ.get("CRUCIX_TIMEOUT", "30"))
 
 # GitHub — repo is "<owner>/<name>"; token is a fine-grained PAT scoped to
@@ -59,8 +60,10 @@ GITHUB_API = os.environ.get("GITHUB_API", "https://api.github.com")
 GITHUB_RAW = os.environ.get("GITHUB_RAW_BASE", "https://raw.githubusercontent.com").rstrip("/")
 
 # ntfy — one ping per PR, and per candidate that couldn't be PR'd.
-NTFY_URL = os.environ.get("NTFY_SERVER_URL", "http://ntfy:8280").rstrip("/")
-NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "household-alerts")
+# (Server URL + topic come from the environment; nothing internal is baked in —
+# this file ships in the public repo.)
+NTFY_URL = os.environ.get("NTFY_SERVER_URL", "").rstrip("/")
+NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "")
 NTFY_TOKEN = os.environ.get("NTFY_TOKEN", "")
 
 STATE_DIR = os.environ.get("STATE_DIR", "/data")
@@ -426,6 +429,9 @@ def main() -> int:
            "dry_run": args.dry_run, "candidates": []}
 
     # 1. crucix signal (social clusters + NRD domain watch)
+    if not CRUCIX_URL:
+        log("CRUCIX_URL is not set — refusing to guess (this copy is public)")
+        return 2
     try:
         data = _get_json(f"{CRUCIX_URL}/api/data", CRUCIX_TIMEOUT)
     except Exception as e:

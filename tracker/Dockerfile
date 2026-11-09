@@ -1,11 +1,12 @@
-# 2shell-tracker — feeds the 2shell.lol arrivals board (github.com/<you>/2shell.lol).
-# Pure-stdlib Python so cold rebuilds stay offline (offline-resilience rules):
-# no pip install, no wheels, no internet at build time. Canonical copy of this
-# file + track.py lives in the 2shell.lol repo, tracker/ — build from there:
+# 2shell-tracker — feeds the 2shell.lol arrivals board.
+# Pure-stdlib Python so cold rebuilds stay dependency-free: no pip install,
+# no wheels, no internet at build time.
 #
-#   docker build -t <registry>/2shell-tracker:latest <2shell.lol>/tracker/
-#   docker push  <registry>/2shell-tracker:latest
-FROM python:3.12-slim
+#   docker build -t 2shell-tracker:latest <2shell.lol>/tracker/
+# A private mirror can override the base image at build time:
+#   docker build --build-arg BASE_IMAGE=python:3.12-slim -t <registry>/2shell-tracker:latest <2shell.lol>/tracker/
+ARG BASE_IMAGE=python:3.12-slim
+FROM ${BASE_IMAGE}
 
 RUN useradd --uid 1000 --create-home --shell /usr/sbin/nologin tracker
 

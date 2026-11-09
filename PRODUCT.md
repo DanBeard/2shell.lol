@@ -43,7 +43,7 @@ the page is its face.
   PRs) reads it. Schema + PR guide in README.
 - CI (`.github/workflows/validate.yml`) validates the JSON on every PR/push
   via `scripts/validate.py`.
-- The tracker bot (cluster CronJob, `~/nixnas/k8s/2shell-tracker/`) mines
+- The tracker bot (a CronJob on the maintainer's private cluster) mines
   the crucix social-signal clusters every 6h and opens draft PRs for new
   candidate names; humans merge. *(explicit in brief)*
 - GitHub Pages, HTTPS, apex domain `2shell.lol`. *(explicit)*

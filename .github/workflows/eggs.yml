@@ -2,7 +2,8 @@ name: eggs
 
 # The incubator: refresh data/eggs.json daily — brand-shaped newly-registered
 # domains that haven't hatched yet. The canonical rater is crucix's NRDWatch
-# (homelab); this is the public display copy, so the site stays static.
+# (the maintainer's private instance); this is the public display copy, so the
+# site stays static.
 on:
   schedule:
     - cron: "23 18 * * *"   # daily 18:23 UTC — just after the NRD list's ~17:12 update

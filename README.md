@@ -87,7 +87,7 @@ First match wins, top to bottom, so order is priority:
 
 ## There is also a bot
 
-A tracker (a plain-stdlib Python CronJob on the maintainer's homelab, this
+A tracker (a plain-stdlib Python CronJob on the maintainer's cluster, this
 repo's [`tracker/`](tracker/) directory) reads an OSINT dashboard's outputs
 every six hours — the security social-signal synthesis **and** a
 newly-registered-domains watch that scans ~700k fresh domains a day for
