@@ -68,6 +68,14 @@ the page is its face.
 - Tone: "tongue-in-cheek but also kinda useful". *(binding, verbatim brief)*
 - Community maintenance: "people could even issue PRs if I missed one".
   *(binding, verbatim brief)*
+- Visual voice (2026-11-09, binding until the owner says otherwise): **rainbow,
+  fun, meme-y.** The first shipped world (dark split-flap station board)
+  read to the owner as "too black and corpo" and was replaced with a
+  candy-sticker world: cream ground, ink outlines, hard block shadows, a
+  fixed seven-hue candy palette doing semantic work (wave era = rainbow,
+  genesis era = sepia). Deadpan copy stays; the chrome gets loud.
+- A `console.log("hey look. It's js2shell lol")` easter egg ships on every
+  page. *(binding, owner request 2026-11-09)*
 
 ## Evidence on Hand
 

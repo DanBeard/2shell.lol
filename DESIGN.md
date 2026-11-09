@@ -1,83 +1,80 @@
 # Design — 2shell.lol
 
-The page is a **Solari split-flap departure board** for the internet's
-shellpocalypse. Roll-assigned direction (impeccable concept-seed 790bd77a,
-assigned index 3); raises carried from the dealt challengers: numbered
-arrivals (card-run), two-ink lamp states (cabaret bill), full-width ruled
-rows with tabular gap numerals (power-hammer ledger), one-line summaries
-(zine explainer), states printed as board states (phosphor terminal).
+The page is a **candy-sticker shellpocalypse scoreboard** — the user-pinned
+direction ("rainbow, fun, meme-y — too black and corpo") replacing the first
+shipped world (dark split-flap station board, roll 790bd77a). The split-flap
+counter survives as the product's instrument; everything around it got loud.
+
+## The semantic trick
+
+The rainbow is data encoding, not decoration: **the 2026 wave is full
+technicolor, the genesis era is sepia.** Each wave arrival takes the next hue
+off a fixed seven-slot candy wheel; classic-era arrivals take the same chip
+shape in vintage sepia. The board literally shows the genre going from black
+& white to color. Era dividers agree: THE 2026 WAVE gets the rainbow-bar
+artifact with a sticker label; THE GENESIS ERA gets a dashed sepia rule.
 
 ## Palette
 
-Dark physical scene: a reader checks the number between advisories, at
-night, on a phone — the board is lit in a dark room.
-
 | Role | Token | Notes |
 |------|-------|-------|
-| ground | `#141417` | flap-plastic near-black, never pure #000 |
-| flap tile lit half | `#202027` | top half, light from the room |
-| flap tile shadow half | `#16161c` | bottom half |
-| seam | `#0b0b0e` | the horizontal split line |
-| letters | `#f2ede4` | ivory flap letters |
-| signal amber | `#ffb000` | the ONE saturated ink: wave-era lamps, live numbers, links |
-| secondary | `#9b968b` | tinted from the ivory, never flat gray |
-| tertiary | `#8a8478` | ≥4.5:1 on ground |
-| rules | `#2a2a31` | hairline row/panel dividers |
+| ground | `#fdf6e9` | cream paper, 1px ink dot-grid |
+| ink | `#17141f` | the only text color; also every border |
+| secondary | `#5b5442` | tinted from the cream, ≥7:1 |
+| hue-1…7 | `#ffd23f #ff9838 #ff6482 #b78cff #6ecbff #5fd68a #ff5d5d` | all ≥6.9:1 with ink text |
+| sepia | `#e8dcc2` | classic-era chip fill (ink text on top) |
 
-Two-ink lamp discipline: lamps resolve crisp lit/unlit — wave = amber fill,
-classic = cold ivory fill, never midtones.
+Neobrutalist chrome is the world: 2–3px ink borders, hard block shadows
+(`4–6px 4–6px 0 ink`), sticker chips. Hard shadows are earned by this
+world — they are its depth system, not a costume.
 
 ## Type
 
-One face does everything: **Departure Mono** (Helena Zhang, OFL, self-hosted
-in `assets/fonts/` with its license) — a pixel-terminal face designed for
-airport signage, the exact artifact. Hierarchy is made of size, case, rules,
-and lamps, never a second typeface. Scale: counter up to 11rem → section h2
-1.32rem → names 1.28rem → body 1rem → micro-labels .72–.8rem (tracked caps).
-Body measure ≤72ch.
+Unchanged: **Departure Mono** (OFL, self-hosted) does everything — its pixel
+terminal character is what makes the candy read as 90s-arcade rather than
+SaaS-landing. Hierarchy by size, case, borders, chips, and hue.
 
 ## Components
 
-- **Flap tile**: `.flap` — two absolutely-positioned halves (`.fh-t`,
-  `.fh-b`), same glyph at 1.8em clipped 50/50, bottom half shifted up half a
-  tile; sizes in em so tiles scale by font-size only (never rem inside a flap).
-- **Counter**: 3+ digit pad, tiles settle from random chars staggered
-  (≈350ms + 180ms/digit), exponential ease via tick timing; instant under
-  `prefers-reduced-motion`. `role="img"` with a live aria-label carrying the
-  number.
-- **NEXT SERVICE panel**: bordered instrument — ETA from the median gap of
-  wave-to-wave arrivals (falls back to all-time), "CONFIDENCE: NONE" state
-  line, amber `.overdue` when the quiet period passes the median.
-- **Stats strip**: one ruled row of four cells (shells, median gap, longest
-  calm, current quiet percentile) — a table, never cards.
-- **Arrival row**: full-width ruled grid — lamp / №0000 (padded, numbered as a
-  fixed run) / name+tech / CVE chips (NVD links) / ARR date / gap (tabular
-  numerals) / SRC↗ provenance ticket / one-line summary. Newest first; top
-  row is why the counter reads what it reads.
-- **Era dividers**: centered tracked-caps labels between ruled lines;
-  `THE 2026 WAVE` in amber, `THE GENESIS ERA` in secondary.
-- **Board states print as board states**: `PANEL SWEEP IN PROGRESS` (loading),
-  `DEPARTURES UNAVAILABLE` (fetch error), `THE BOARD IS EMPTY` (no data),
-  `A NEW SHELL HAS ARRIVED` (day-zero amber flood).
-- **Ticker**: aria-hidden marquee loop of current stats; hover pauses;
-  static under reduced-motion. World-native (station tickers exist); the
-  only intentionally accepted detector warning.
+- **Flap tiles**: hue-filled (one candy each, per-digit cycle), ink border +
+  block shadow, split halves kept (`filter: brightness(1.07/.9)` + 2px ink
+  seam). Counter digits spin the wheel; the brand spells 2SHELL in it.
+- **Day-zero state**: when daysSince = 0, tiles run a `steps(1)` hue-cycle
+  animation (reduced-motion: static), label gains "A NEW SHELL HAS ARRIVED."
+- **Header badges**: sticker chips — "THE SHELLPOCALYPSE SCOREBOARD",
+  "100% ARTIFICIAL FLAVOR", live date, "BEST VIEWED AT 2AM".
+- **NEXT SERVICE panel**: white sticker panel with dashed-ink rule; overdue
+  state floods the ETA sticker red and the due line yellow.
+- **Stats strip**: four hue-cycled sticker blocks (yellow/mint/sky/lavender).
+- **Arrival row**: № in a hue chip (pops on hover: grows its block shadow),
+  name+tech, CVE chips right-aligned, ARR date, tabular gap, SRC↗ ticket,
+  one-line summary. Full-width ruled rows (2px ink) — the forge-raise kept.
+- **Rainbow bar**: the GeoCities `<hr>` as a real component — era dividers
+  and the 404 page.
+- **Ticker**: a scrolling rainbow strip with ink text (aria-hidden,
+  hover-pause, static under reduced-motion) — the world's own artifact.
+- **Snippet**: the one dark element — an ink terminal sticker on cream.
+- **Board states**: UNBOXING THE CHOCOLATES (loading), DEPARTURES
+  UNAVAILABLE (error), THE BOARD IS EMPTY (no data).
 
 ## Motion
 
-One authored moment: the flap settle on load. One acknowledgment: the row №
-tile's top half tilts back 38° on hover (flap responding to a touch).
-Nothing else animates.
+Settle-flap on load (unchanged), day-zero hue cycle, chip pop on row hover.
+Reduced-motion renders every final state instantly.
+
+## Easter egg
+
+`console.log("hey look. It's js2shell lol")` fires on every load, first line
+of the script. After the data lands, a second `%c`-styled console sticker
+reports the current counter.
 
 ## Fallbacks & a11y
 
-`prefers-reduced-motion` renders every final state instantly. The board
-degrades without JS to a note + link to the raw JSON. Semantics: real
-sections, `<h1 class="vh">`, self-describing rows (№, ARR, GAP labels are
-visible text), focus rings amber, selection amber-on-ground, scrollbar
-themed. Contrast: body/labels ≥4.5:1, large display ≥3:1.
+Same contract as v1: `prefers-reduced-motion` handled, noscript degrades to
+the JSON link, `<h1 class="vh">`, self-describing rows, amber→hue focus
+rings, themed selection/scrollbar. Contrast: ink-on-hues ≥6.9:1, dim ≥7:1.
 
 ## Voice
 
-Deadpan-panic station announcements. Snark in the copy, facts in the fields;
-every joke must survive a fact-check.
+Same deadpan, louder packaging. "The old ones are in black & white — like
+the history they are."

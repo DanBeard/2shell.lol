@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>404 — platform not on this board — 2shell.lol</title>
 <meta name="robots" content="noindex">
-<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="8" fill="%23141417"/><rect y="31" width="64" height="2" fill="%230b0b0e"/><text x="32" y="42" font-family="monospace" font-size="30" font-weight="bold" fill="%23f2ede4" text-anchor="middle">2S</text></svg>'>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="4" y="20" width="16" height="24" rx="3" fill="%23ffd23f" stroke="%2317141f" stroke-width="3"/><rect x="24" y="20" width="16" height="24" rx="3" fill="%23ff6482" stroke="%2317141f" stroke-width="3"/><rect x="44" y="20" width="16" height="24" rx="3" fill="%236ecbff" stroke="%2317141f" stroke-width="3"/></svg>'>
 <style>
 @font-face {
   font-family: 'Departure Mono';
@@ -13,32 +13,40 @@
        url('assets/fonts/DepartureMono-Regular.otf') format('opentype');
   font-weight: 400; font-style: normal; font-display: swap;
 }
-:root { --ground:#141417; --ivory:#f2ede4; --dim:#9b968b; --amber:#ffb000;
-        --rule:#2a2a31; --tile-t:#202027; --tile-b:#16161c; --seam:#0b0b0e; }
+:root { --paper:#fdf6e9; --ink:#17141f; --dim:#5b5442;
+        --hue-1:#ffd23f; --hue-2:#ff9838; --hue-3:#ff6482; --hue-5:#6ecbff; }
 * { box-sizing:border-box; margin:0; padding:0; }
-body { background:var(--ground); color:var(--ivory); min-height:100vh;
+body { background:var(--paper);
+  background-image: radial-gradient(rgba(23,20,31,.055) 1px, transparent 1px);
+  background-size: 22px 22px;
+  color:var(--ink); min-height:100vh;
   font-family:'Departure Mono', ui-monospace, Menlo, monospace;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
-  text-align:center; gap:1.6rem; padding:2rem; }
-.flap { position:relative; display:inline-block; width:1.32em; height:1.8em; }
-.flap .fh { position:absolute; left:0; right:0; height:50%; overflow:hidden; }
-.flap .fh-t { top:0; background:var(--tile-t); }
-.flap .fh-b { bottom:0; background:var(--tile-b); border-top:.06em solid var(--seam); }
+  text-align:center; gap:1.8rem; padding:2rem; }
+.flap { position:relative; display:inline-block; width:1.32em; height:1.8em;
+  border:2px solid var(--ink); box-shadow:4px 4px 0 var(--ink); --th:var(--hue-1); }
+.flap .fh { position:absolute; left:0; right:0; height:50%; overflow:hidden; background:var(--th); }
+.flap .fh-t { top:0; border-bottom:2px solid var(--ink); filter:brightness(1.07); }
+.flap .fh-b { bottom:0; filter:brightness(.9); }
 .flap i { font-style:normal; display:block; height:1.8em; line-height:1.8em; text-align:center; }
 .flap .fh-b i { transform:translateY(-.9em); }
-.row { font-size:2.4rem; }
-h1 { font-size:1rem; letter-spacing:.14em; color:var(--ivory); }
+.row { font-size:2.2rem; display:flex; gap:.45rem; }
+.bar { width:min(420px, 80vw); height:8px; border:2px solid var(--ink);
+  background:linear-gradient(90deg, var(--hue-1), var(--hue-2), var(--hue-3), var(--hue-5)); }
+h1 { font-size:1rem; letter-spacing:.14em; background:var(--hue-1);
+  border:2px solid var(--ink); box-shadow:3px 3px 0 var(--ink); padding:.25rem .8rem; }
 p { color:var(--dim); font-size:.85rem; line-height:1.8; max-width:44ch; }
-a { color:var(--amber); text-decoration:none; }
-a:hover { text-decoration:underline; text-underline-offset:3px; }
+a { color:var(--ink); border-bottom:2px solid var(--hue-3); text-decoration:none; }
+a:hover { background:var(--hue-1); }
 </style>
 </head>
 <body>
 <div class="row" aria-hidden="true">
-  <span class="flap"><span class="fh fh-t"><i>4</i></span><span class="fh fh-b"><i>4</i></span></span><span class="flap"><span class="fh fh-t"><i>0</i></span><span class="fh fh-b"><i>0</i></span></span><span class="flap"><span class="fh fh-t"><i>4</i></span><span class="fh fh-b"><i>4</i></span></span>
+  <span class="flap" style="--th:var(--hue-1)"><span class="fh fh-t"><i>4</i></span><span class="fh fh-b"><i>4</i></span></span><span class="flap" style="--th:var(--hue-3)"><span class="fh fh-t"><i>0</i></span><span class="fh fh-b"><i>0</i></span></span><span class="flap" style="--th:var(--hue-5)"><span class="fh fh-t"><i>4</i></span><span class="fh fh-b"><i>4</i></span></span>
 </div>
 <h1>THIS PLATFORM DOES NOT EXIST.</h1>
 <p>The board only serves one destination. It has been some number of days
 since the last 2Shell: <a href="/">check the counter</a>.</p>
+<div class="bar" aria-hidden="true"></div>
 </body>
 </html>
