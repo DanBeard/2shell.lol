@@ -35,12 +35,10 @@ import base64
 import json
 import os
 import re
-import socket
 import sys
 import time
 import urllib.error
 import urllib.request
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
 # --------------------------------------------------------------------------- #
@@ -78,28 +76,11 @@ SEEN_MAX_AGE_DAYS = int(os.environ.get("SEEN_MAX_AGE_DAYS", "60"))
 NAME_RE = re.compile(r"(?i)([A-Za-z0-9][A-Za-z0-9+#.\-]{0,20}?[24][Ss]hell)")
 CVE_RE = re.compile(r"\bCVE-\d{4}-\d{4,7}\b")
 FAMILY_WORDS = {"2shell", "4shell"}
-
-# --- domain sweep --------------------------------------------------------
-# No usable public NRD/CT feed exists from the cluster (crt.sh's index misses
-# the meme sites and rejects wildcards; the certstream firehoses are dead
-# from here). But the naming committee is predictable: probe the pattern
-# space itself — <tech><2shell|4shell>.<tld> plus the ssh-hole family — and
-# ping when a candidate starts resolving. A brand domain going live is
-# usually disclosure-week. The unpredictable names (sshhole-style) stay
-# covered by the crucix social signal.
-SWEEP_ENABLED = os.environ.get("SWEEP_ENABLED", "1") == "1"
-SWEEP_TECHS = [t.strip().lower() for t in os.environ.get(
-    "SWEEP_TECHS",
-    "php,wp,wordpress,node,bun,curl,git,go,rust,java,spring,tomcat,kafka,docker,"
-    "k8s,nginx,apache,python,django,flask,fastapi,rails,mysql,postgres,redis,"
-    "mongodb,elastic,ssh,openssh,linux,alpine,musl,aws,azure,gcp,dotnet").split(",") if t.strip()]
-SWEEP_TLDS = [t.strip().lower().lstrip(".") for t in os.environ.get(
-    "SWEEP_TLDS", "com,net,org,io,dev,lol,xyz,app,site,top").split(",") if t.strip()]
-SWEEP_EXTRAS = [d.strip().lower() for d in os.environ.get(
-    "SWEEP_EXTRAS", "sshhole,sshport,sshpwn,sshfail,sshgap,sshtrap").split(",") if d.strip()]
-SWEEP_SELF = {"2shell.lol", "www.2shell.lol"}
-SWEEP_WORKERS = int(os.environ.get("SWEEP_WORKERS", "10"))
-SWEEP_THROTTLE_S = float(os.environ.get("SWEEP_THROTTLE_S", "0.1"))
+# NRDWatch gate: a domain alone isn't a disclosure — its site must say
+# something beyond the domain itself (parking pages title themselves with
+# the domain) or carry strict vuln language.
+VULN_TITLE = re.compile(r"(?i)cve|rce|exploit|vulnerab|unauthenticated|0-?day|"
+                        r"bypass|pre-auth|memory|advisory|disclos")
 
 UA = "2shell-tracker/1.0 (+2shell.lol)"
 
@@ -209,66 +190,55 @@ def append_history(run: dict) -> None:
         f.write(json.dumps(run, default=str) + "\n")
 
 
-def _resolve(domain: str) -> str | None:
-    """DNS probe, paced so the household gateway never feels it."""
-    time.sleep(SWEEP_THROTTLE_S)
-    try:
-        infos = socket.getaddrinfo(domain, None)
-        return infos[0][4][0] if infos else None
-    except (socket.gaierror, OSError):
-        return None
+def nrd_candidates(data: dict, board_names: set) -> dict:
+    """crucix NRDWatch: shell-pattern domains with live, non-parking sites.
 
-def domain_sweep(board_names: set, seen: dict, pushes: list, dry_run: bool) -> list:
-    """Probe pattern-shaped candidate domains; ping when a new one resolves."""
-    if not SWEEP_ENABLED:
-        return []
-    domains: set[str] = set()
-    for tech in SWEEP_TECHS:
-        for suf in ("2shell", "4shell"):
-            for tld in SWEEP_TLDS:
-                domains.add(f"{tech}{suf}.{tld}")
-    for extra in SWEEP_EXTRAS:
-        for tld in SWEEP_TLDS:
-            domains.add(f"{extra}.{tld}")
-
-    log(f"domain sweep: probing {len(domains)} pattern-shaped candidates")
-    resolves: dict[str, str] = {}
-    ordered = sorted(domains)
-    with ThreadPoolExecutor(max_workers=SWEEP_WORKERS) as ex:
-        for d, ip in zip(ordered, ex.map(_resolve, ordered)):
-            if ip:
-                resolves[d] = ip
-
-    new, known = [], []
-    for d, ip in sorted(resolves.items()):
-        if d in SWEEP_SELF:
+    A registered *2Shell domain whose site says something (a title beyond
+    the domain itself, or strict vuln language) becomes a PR candidate —
+    the domain watch flows downstream like any other crucix signal.
+    Parking pages (title == domain) and title-less sites are watched, not PR'd.
+    """
+    nrd = data.get("nrd") or {}
+    cands: dict = {}
+    for d in nrd.get("domains") or []:
+        if not d.get("isNew") or d.get("score", 0) < 70:
             continue
-        if any(bn and bn in d for bn in board_names):
-            known.append(d)
+        domain = (d.get("domain") or "").lower()
+        label = domain.split(".")[0]
+        if not label or label in board_names:
             continue
-        if f"domain:{d}" in seen:
+        grab = d.get("grab") or {}
+        title = (grab.get("title") or "").strip()
+        if not title:
+            log(f"nrd: {domain} (score {d.get('score')}) — no site title yet, watching")
             continue
-        new.append((d, ip))
-
-    for d in known:
-        log(f"domain sweep: {d} resolves (already on the board)")
-    for d, ip in new:
-        log(f"DOMAIN HIT: {d} ({ip})")
-
-    if new and not dry_run:
-        shown = ", ".join(f"{d} ({ip})" for d, ip in new[:8])
-        more = f" (+{len(new) - 8} more)" if len(new) > 8 else ""
-        if ntfy("2shell.lol: name-shaped domain online",
-                f"{shown}{more}. Somebody registered the pattern. Check whether "
-                f"a new shell is branding.", priority=3, tags="shell"):
-            pushes.append({"key": f"sweep-{int(time.time())}", "ts": time.time()})
-        for d, ip in new:
-            seen[f"domain:{d}"] = {"ts": time.time(), "action": "swept", "ip": ip}
-    return [d for d, _ in new]
-
-# --------------------------------------------------------------------------- #
-# Candidate extraction                                                         #
-# --------------------------------------------------------------------------- #
+        parking = title.lower() == domain
+        strict = bool(VULN_TITLE.search(title))
+        if d.get("score", 0) >= 90 and not parking:
+            verdict = "shell-pattern + live site"
+        elif strict:
+            verdict = "vuln-language title"
+        else:
+            log(f"nrd: {domain} (score {d.get('score')}) — title looks like "
+                f"{'parking' if parking else 'noise'}, watching: {title[:60]}")
+            continue
+        log(f"nrd: {domain} — CANDIDATE ({verdict}): {title[:60]}")
+        cands[label] = {
+            "display": label,
+            "authors": {"nrd-watch"},
+            "trusted": True,
+            "corroborated": True,
+            "cves": set(),
+            "evidence": [{
+                "author": "nrd-watch (crucix NRDWatch)",
+                "network": "nrd",
+                "url": f"https://{domain}",
+                "text": f"domain registered, brand-score {d.get('score')} "
+                        f"({d.get('why')}); site title: {title}",
+                "level": "nrd",
+            }],
+        }
+    return cands
 
 def social_clusters(data: dict) -> list:
     """crucix /api/data serves the inject-transformed view (.social), with
@@ -403,7 +373,7 @@ def open_pr_for(cand: dict, key: str) -> str:
         for e in cand["evidence"][:6])
     body = (
         f"The [2shell.lol tracker](https://2shell.lol) detected `{display}` in "
-        f"the crucix social signal.\n\n"
+        f"the crucix signal (social chatter and/or the NRD domain watch).\n\n"
         f"**Evidence** (last 5 days of Mastodon/Bluesky chatter):\n{ev_lines}\n\n"
         f"**Before merging, please:**\n"
         f"1. Verify it is a real, publicly disclosed vulnerability — not a "
@@ -450,16 +420,16 @@ def main() -> int:
     run = {"started": datetime.now(timezone.utc).isoformat(),
            "dry_run": args.dry_run, "candidates": []}
 
-    # 1. crucix signal
-    crucix_ok = True
+    # 1. crucix signal (social clusters + NRD domain watch)
     try:
         data = _get_json(f"{CRUCIX_URL}/api/data", CRUCIX_TIMEOUT)
     except Exception as e:
-        log(f"crucix unreachable ({e}) — social detection degraded, sweep still runs")
-        data = None
-        crucix_ok = False
-    clusters = social_clusters(data or {})
-    log(f"crucix: {len(clusters)} social cluster(s)" if crucix_ok else "crucix: DOWN")
+        log(f"crucix unreachable ({e}) — nothing to do, failing loudly")
+        run["error"] = f"crucix: {e}"
+        append_history(run)
+        return 1
+    clusters = social_clusters(data)
+    log(f"crucix ok: {len(clusters)} social cluster(s)")
 
     board = fetch_board()
     board_names = known_names(board)
@@ -467,11 +437,9 @@ def main() -> int:
         log("WARNING: board unreadable — cannot dedupe, proceeding anyway")
     seen, pushes = load_state()
 
-    # 2a. domain sweep (independent of crucix)
-    domains_hit = domain_sweep(board_names, seen, pushes, args.dry_run)
-
-    # 2b. social candidates
+    # 2. candidates — social chatter + NRD domain watch
     cands = extract_candidates(clusters)
+    cands.update(nrd_candidates(data, board_names))
 
     new, weak = [], []
     for key, cand in sorted(cands.items()):
@@ -547,11 +515,9 @@ def main() -> int:
     run["finished"] = datetime.now(timezone.utc).isoformat()
     run["new"] = len(new) if not args.dry_run else 0
     run["handled"] = notified
-    run["domains"] = domains_hit
     append_history(run)
-    log(f"done: {len(new)} candidate(s), {len(weak)} weak mention(s), "
-        f"{len(domains_hit)} domain hit(s)")
-    return 0 if crucix_ok else 1
+    log(f"done: {len(new)} candidate(s), {len(weak)} weak mention(s)")
+    return 0
 
 
 if __name__ == "__main__":
