@@ -54,6 +54,17 @@
       "era": "wave",
       "added": "2026-11-09",
       "added_by": "dbeard"
+    },
+    {
+      "name": "Able2Shell",
+      "date": "2026-11-09",
+      "cves": [],
+      "tech": "N-able N-central (RMM)",
+      "summary": "Thirty-three unpatched 0-days in MSP remote-management software, dropped with PoCs and full exploit chains: anonymous XXE-to-RCE, stored-XSS-to-root. No CVEs yet. The genre now ships in bulk.",
+      "url": "https://github.com/Oracle-Security/CVEs/tree/main/0-Days/N-Central%20N-Able",
+      "era": "wave",
+      "added": "2026-11-09",
+      "added_by": "dbeard"
     }
   ]
 }

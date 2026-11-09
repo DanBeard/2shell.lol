@@ -523,7 +523,7 @@ function renderCounter(stats) {
 
 function renderService(stats, nowMs) {
   const svc = document.getElementById("service");
-  document.getElementById("svc-eta").innerHTML = `~${stats.eta ?? "—"} <small>DAYS</small>`;
+  document.getElementById("svc-eta").innerHTML = `~${stats.eta != null ? Math.round(stats.eta) : "—"} <small>DAYS</small>`;
   document.getElementById("median-wave").textContent = stats.medianWave != null ? stats.medianWave + "d" : "—";
   document.getElementById("median-all").textContent = stats.medianAll != null ? stats.medianAll + "d" : "—";
   document.getElementById("svc-due").textContent =
