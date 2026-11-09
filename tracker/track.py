@@ -35,10 +35,12 @@ import base64
 import json
 import os
 import re
+import socket
 import sys
 import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
 # --------------------------------------------------------------------------- #
@@ -76,6 +78,28 @@ SEEN_MAX_AGE_DAYS = int(os.environ.get("SEEN_MAX_AGE_DAYS", "60"))
 NAME_RE = re.compile(r"(?i)([A-Za-z0-9][A-Za-z0-9+#.\-]{0,20}?[24][Ss]hell)")
 CVE_RE = re.compile(r"\bCVE-\d{4}-\d{4,7}\b")
 FAMILY_WORDS = {"2shell", "4shell"}
+
+# --- domain sweep --------------------------------------------------------
+# No usable public NRD/CT feed exists from the cluster (crt.sh's index misses
+# the meme sites and rejects wildcards; the certstream firehoses are dead
+# from here). But the naming committee is predictable: probe the pattern
+# space itself — <tech><2shell|4shell>.<tld> plus the ssh-hole family — and
+# ping when a candidate starts resolving. A brand domain going live is
+# usually disclosure-week. The unpredictable names (sshhole-style) stay
+# covered by the crucix social signal.
+SWEEP_ENABLED = os.environ.get("SWEEP_ENABLED", "1") == "1"
+SWEEP_TECHS = [t.strip().lower() for t in os.environ.get(
+    "SWEEP_TECHS",
+    "php,wp,wordpress,node,bun,curl,git,go,rust,java,spring,tomcat,kafka,docker,"
+    "k8s,nginx,apache,python,django,flask,fastapi,rails,mysql,postgres,redis,"
+    "mongodb,elastic,ssh,openssh,linux,alpine,musl,aws,azure,gcp,dotnet").split(",") if t.strip()]
+SWEEP_TLDS = [t.strip().lower().lstrip(".") for t in os.environ.get(
+    "SWEEP_TLDS", "com,net,org,io,dev,lol,xyz,app,site,top").split(",") if t.strip()]
+SWEEP_EXTRAS = [d.strip().lower() for d in os.environ.get(
+    "SWEEP_EXTRAS", "sshhole,sshport,sshpwn,sshfail,sshgap,sshtrap").split(",") if d.strip()]
+SWEEP_SELF = {"2shell.lol", "www.2shell.lol"}
+SWEEP_WORKERS = int(os.environ.get("SWEEP_WORKERS", "10"))
+SWEEP_THROTTLE_S = float(os.environ.get("SWEEP_THROTTLE_S", "0.1"))
 
 UA = "2shell-tracker/1.0 (+2shell.lol)"
 
@@ -184,6 +208,63 @@ def append_history(run: dict) -> None:
     with open(HISTORY_PATH, "a") as f:
         f.write(json.dumps(run, default=str) + "\n")
 
+
+def _resolve(domain: str) -> str | None:
+    """DNS probe, paced so the household gateway never feels it."""
+    time.sleep(SWEEP_THROTTLE_S)
+    try:
+        infos = socket.getaddrinfo(domain, None)
+        return infos[0][4][0] if infos else None
+    except (socket.gaierror, OSError):
+        return None
+
+def domain_sweep(board_names: set, seen: dict, pushes: list, dry_run: bool) -> list:
+    """Probe pattern-shaped candidate domains; ping when a new one resolves."""
+    if not SWEEP_ENABLED:
+        return []
+    domains: set[str] = set()
+    for tech in SWEEP_TECHS:
+        for suf in ("2shell", "4shell"):
+            for tld in SWEEP_TLDS:
+                domains.add(f"{tech}{suf}.{tld}")
+    for extra in SWEEP_EXTRAS:
+        for tld in SWEEP_TLDS:
+            domains.add(f"{extra}.{tld}")
+
+    log(f"domain sweep: probing {len(domains)} pattern-shaped candidates")
+    resolves: dict[str, str] = {}
+    ordered = sorted(domains)
+    with ThreadPoolExecutor(max_workers=SWEEP_WORKERS) as ex:
+        for d, ip in zip(ordered, ex.map(_resolve, ordered)):
+            if ip:
+                resolves[d] = ip
+
+    new, known = [], []
+    for d, ip in sorted(resolves.items()):
+        if d in SWEEP_SELF:
+            continue
+        if any(bn and bn in d for bn in board_names):
+            known.append(d)
+            continue
+        if f"domain:{d}" in seen:
+            continue
+        new.append((d, ip))
+
+    for d in known:
+        log(f"domain sweep: {d} resolves (already on the board)")
+    for d, ip in new:
+        log(f"DOMAIN HIT: {d} ({ip})")
+
+    if new and not dry_run:
+        shown = ", ".join(f"{d} ({ip})" for d, ip in new[:8])
+        more = f" (+{len(new) - 8} more)" if len(new) > 8 else ""
+        if ntfy("2shell.lol: name-shaped domain online",
+                f"{shown}{more}. Somebody registered the pattern. Check whether "
+                f"a new shell is branding.", priority=3, tags="shell"):
+            pushes.append({"key": f"sweep-{int(time.time())}", "ts": time.time()})
+        for d, ip in new:
+            seen[f"domain:{d}"] = {"ts": time.time(), "action": "swept", "ip": ip}
+    return [d for d, _ in new]
 
 # --------------------------------------------------------------------------- #
 # Candidate extraction                                                         #
@@ -370,23 +451,27 @@ def main() -> int:
            "dry_run": args.dry_run, "candidates": []}
 
     # 1. crucix signal
+    crucix_ok = True
     try:
         data = _get_json(f"{CRUCIX_URL}/api/data", CRUCIX_TIMEOUT)
     except Exception as e:
-        log(f"crucix unreachable ({e}) — nothing to do, failing loudly")
-        run["error"] = f"crucix: {e}"
-        append_history(run)
-        return 1
-    clusters = social_clusters(data)
-    log(f"crucix ok: {len(clusters)} social cluster(s)")
+        log(f"crucix unreachable ({e}) — social detection degraded, sweep still runs")
+        data = None
+        crucix_ok = False
+    clusters = social_clusters(data or {})
+    log(f"crucix: {len(clusters)} social cluster(s)" if crucix_ok else "crucix: DOWN")
 
-    # 2. candidates
-    cands = extract_candidates(clusters)
     board = fetch_board()
     board_names = known_names(board)
     if GITHUB_REPO and board is None:
         log("WARNING: board unreadable — cannot dedupe, proceeding anyway")
     seen, pushes = load_state()
+
+    # 2a. domain sweep (independent of crucix)
+    domains_hit = domain_sweep(board_names, seen, pushes, args.dry_run)
+
+    # 2b. social candidates
+    cands = extract_candidates(clusters)
 
     new, weak = [], []
     for key, cand in sorted(cands.items()):
@@ -462,9 +547,11 @@ def main() -> int:
     run["finished"] = datetime.now(timezone.utc).isoformat()
     run["new"] = len(new) if not args.dry_run else 0
     run["handled"] = notified
+    run["domains"] = domains_hit
     append_history(run)
-    log(f"done: {len(new)} candidate(s), {len(weak)} weak mention(s)")
-    return 0
+    log(f"done: {len(new)} candidate(s), {len(weak)} weak mention(s), "
+        f"{len(domains_hit)} domain hit(s)")
+    return 0 if crucix_ok else 1
 
 
 if __name__ == "__main__":
