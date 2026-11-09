@@ -22,6 +22,9 @@ from pathlib import Path
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9+#.\-]{0,20}?[24][Ss]hell$")
 CVE_RE = re.compile(r"^CVE-\d{4}-\d{4,7}$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+MOOD_ID_RE = re.compile(r"^[a-z][a-z0-9-]{0,30}$")
+MOOD_CLASSES = {"mood-zero", "mood-fresh", "mood-year", "mood-due", "mood-record"}
+MOOD_KEYS = {"id", "class", "line", "min_days", "max_days", "record", "overdue"}
 
 def main() -> int:
     path = Path(__file__).resolve().parent.parent / "data" / "vulns.json"
@@ -79,12 +82,59 @@ def main() -> int:
         if not v.get("added_by"):
             errors.append(f"{tag}: 'added_by' provenance missing")
 
+    # moods block (optional, but shape-checked when present: the JSON stands
+    # on its own, so the copy has to survive the same gate as the data)
+    moods = data.get("moods")
+    if moods is not None:
+        if not isinstance(moods, list) or not moods:
+            errors.append("moods: must be a non-empty list (or absent entirely)")
+        else:
+            seen_ids: set[str] = set()
+            for i, m in enumerate(moods):
+                tag = f"moods[{i}]"
+                if not isinstance(m, dict):
+                    errors.append(f"{tag}: must be an object")
+                    continue
+                unknown = set(m) - MOOD_KEYS
+                if unknown:
+                    errors.append(f"{tag}: unknown key(s) {sorted(unknown)} "
+                                  f"(vocabulary: id, class, line, min_days, max_days, record, overdue)")
+                mid = m.get("id")
+                if not mid or not MOOD_ID_RE.match(str(mid)):
+                    errors.append(f"{tag}: 'id' must be a kebab slug (zero, due-in-a-week, ...)")
+                elif mid in seen_ids:
+                    errors.append(f"{tag}: duplicate mood id {mid!r}")
+                else:
+                    seen_ids.add(mid)
+                if m.get("class") not in MOOD_CLASSES:
+                    errors.append(f"{tag}: 'class' must be one of "
+                                  f"{', '.join(sorted(MOOD_CLASSES))} "
+                                  f"(new looks need a one-line CSS PR first)")
+                line = m.get("line")
+                if not line or len(str(line)) > 140:
+                    errors.append(f"{tag}: 'line' must be 1-140 chars (it's a sticker chip)")
+                mn, mx = m.get("min_days"), m.get("max_days")
+                if mn is not None and (not isinstance(mn, int) or mn < 0):
+                    errors.append(f"{tag}: 'min_days' must be a non-negative int")
+                if mx is not None and (not isinstance(mx, int) or mx < 0):
+                    errors.append(f"{tag}: 'max_days' must be a non-negative int")
+                if isinstance(mn, int) and isinstance(mx, int) and mn > mx:
+                    errors.append(f"{tag}: min_days > max_days — unreachable mood")
+                if not any(m.get(k) is not None for k in ("min_days", "max_days", "record", "overdue")):
+                    errors.append(f"{tag}: no constraint — this mood always wins. "
+                                  f"Give it a min_days/max_days/record/overdue")
+                for k in ("record", "overdue"):
+                    if k in m and not isinstance(m[k], bool):
+                        errors.append(f"{tag}: '{k}' must be true/false")
+
     if errors:
         print("FAIL: data/vulns.json has problems:")
         for e in errors:
             print(f"  - {e}")
         return 1
-    print(f"OK: {len(vulns)} shell(s), all valid. It has been a while. For now.")
+    n_moods = len(moods) if isinstance(moods, list) else 0
+    print(f"OK: {len(vulns)} shell(s), {n_moods} mood line(s), all valid. "
+          f"It has been a while. For now.")
     return 0
 
 if __name__ == "__main__":

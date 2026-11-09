@@ -26,7 +26,8 @@ only: `classic` (the 2021–22 genre-founding era) and `wave` (the 2026
 
 ## Add one (PR guide)
 
-1. Fork and edit **[`data/vulns.json`](data/vulns.json)** — one entry:
+1. Fork and edit **[`data/vulns.json`](data/vulns.json)**. Shells are entries in
+   `vulns`; the whole site's content lives in this one file:
 
    ```json
    {
@@ -43,14 +44,38 @@ only: `classic` (the 2021–22 genre-founding era) and `wave` (the 2026
    ```
 
    - `date` = the day it went public (disclosure day), not the day you heard
-     about it.
+     about it. The counter is computed from this, client-side, in UTC —
+     nobody redeploys to make the number tick.
    - `summary` = one line, max 280 chars. Snark welcome; facts mandatory.
-   - `era` = `classic` (pre-2026) or `wave`.
+   - `era` = `classic` (pre-2026, sepia chips) or `wave` (2026, rainbow chips).
    - `cves` may be `[]` if you're still researching — the board shows a dash.
 
 2. Open a PR. CI validates the shape (`scripts/validate.py`) and a human
    merges.
 3. The counter resets the moment you merge. Yes. That's on you.
+
+## Mood lines (also just JSON)
+
+The sticker chip under the counter ("A NEW SHELL HAS ARRIVED. WELCOME TO
+THE FUTURE.") is data, not code — the `moods` array in the same file.
+First match wins, top to bottom, so order is priority:
+
+```json
+"moods": [
+  { "id": "zero", "class": "mood-zero", "max_days": 0,
+    "line": "A NEW SHELL HAS ARRIVED. WELCOME TO THE FUTURE." },
+  { "id": "fresh", "class": "mood-fresh", "min_days": 1, "max_days": 1,
+    "line": "ONE DAY OF CALM. SAVOR IT." }
+]
+```
+
+- Constraints are declarative: `min_days` / `max_days` (inclusive bounds on
+  the count), `"record": true` (calmer than any gap ever), `"overdue": true`
+  (past the median over/under). At least one required.
+- `class` picks the chip look: `mood-zero` (rainbow), `mood-fresh` (mint),
+  `mood-record` (lavender), `mood-year` (sky), `mood-due` (yellow).
+  New looks need a one-line CSS PR first.
+- `line` max 140 chars. No mood matched → no chip; silence is also copy.
 
 ## There is also a bot
 

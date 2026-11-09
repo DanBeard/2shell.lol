@@ -66,5 +66,17 @@
       "added": "2026-11-09",
       "added_by": "dbeard"
     }
+  ],
+  "moods": [
+    { "id": "zero",   "class": "mood-zero",   "max_days": 0,
+      "line": "A NEW SHELL HAS ARRIVED. WELCOME TO THE FUTURE." },
+    { "id": "fresh",  "class": "mood-fresh",  "min_days": 1, "max_days": 1,
+      "line": "ONE DAY OF CALM. SAVOR IT." },
+    { "id": "record", "class": "mood-record", "record": true,
+      "line": "LONGEST CALM IN RECORDED HISTORY. STATISTICALLY, NOTHING IS WRONG." },
+    { "id": "year",   "class": "mood-year",   "min_days": 365,
+      "line": "A YEAR OF CALM. THE GENRE MATURED OR NAPPED." },
+    { "id": "due",    "class": "mood-due",    "overdue": true,
+      "line": "THE OVER/UNDER SAYS ANY DAY NOW." }
   ]
 }

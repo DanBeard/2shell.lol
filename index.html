@@ -519,30 +519,23 @@ function pad4(n) { return String(n).padStart(4, "0"); }
 function hueVar(i) { return `var(--hue-${(i % 7) + 1})`; }
 
 /* ------------------------------------------------------------------ */
-/* the mood table — one sticker per state of the world. Evaluated      */
-/* top-down, first match wins. This is the copy slot: re-voice the     */
-/* lines here, keep the tests, PRs welcome.                            */
+/* mood lines — live in data/vulns.json ("moods": [...]). The JSON     */
+/* stands on its own: this function only evaluates the declarative     */
+/* constraints. First match wins; missing block = no mood line.        */
 /* ------------------------------------------------------------------ */
-const MOODS = [
-  { id: "zero",   cls: "mood-zero",
-    test: s => s.daysSince === 0,
-    line: "A NEW SHELL HAS ARRIVED. WELCOME TO THE FUTURE." },
-  { id: "fresh",  cls: "mood-fresh",
-    test: s => s.daysSince === 1,
-    line: "ONE DAY OF CALM. SAVOR IT." },
-  { id: "record", cls: "mood-record",
-    test: s => s.longestCalm != null && s.daysSince > s.longestCalm,
-    line: "LONGEST CALM IN RECORDED HISTORY. STATISTICALLY, NOTHING IS WRONG." },
-  { id: "year",   cls: "mood-year",
-    test: s => s.daysSince >= 365,
-    line: "A YEAR OF CALM. THE GENRE MATURED OR NAPPED." },
-  { id: "due",    cls: "mood-due",
-    test: s => s.overdue,
-    line: "THE OVER/UNDER SAYS ANY DAY NOW." },
-];
 
-function pickMood(stats) {
-  for (const m of MOODS) if (m.test(stats)) return m;
+function moodMatches(m, s) {
+  if (m.min_days != null && !(s.daysSince >= m.min_days)) return false;
+  if (m.max_days != null && !(s.daysSince <= m.max_days)) return false;
+  if (m.record && !(s.longestCalm != null && s.daysSince > s.longestCalm)) return false;
+  if (m.overdue && !s.overdue) return false;
+  return true;
+}
+
+function pickMood(stats, moods) {
+  for (const m of moods || []) {
+    if (m && m.line && moodMatches(m, stats)) return m;
+  }
   return null;
 }
 
@@ -577,7 +570,7 @@ function flapSettle(tile, finalChar, delay) {
   }, delay);
 }
 
-function renderCounter(stats) {
+function renderCounter(stats, moods) {
   const display = document.getElementById("counter-display");
   const label = document.getElementById("counter-label");
   const sub = document.getElementById("counter-sub");
@@ -594,10 +587,10 @@ function renderCounter(stats) {
   label.textContent = "DAYS SINCE THE LAST 2SHELL-NAMED VULNERABILITY";
   sub.innerHTML = `LAST ARRIVAL: <b>${stats.latest.name.toUpperCase()}</b> · ${fmtDate(stats.latest.ts)}` +
     (stats.latest.era === "wave" ? "" : "  <span style='color:var(--dim)'>(the genre never really went away)</span>");
-  const mood = pickMood(stats);
+  const mood = pickMood(stats, moods);
   if (mood) {
     const chip = document.createElement("span");
-    chip.className = "counter-mood " + mood.cls;
+    chip.className = "counter-mood " + (mood.class || "");
     chip.textContent = mood.line;
     sub.after(chip);
   }
@@ -705,7 +698,7 @@ async function init() {
   const vulns = parseVulns(data);
   const stats = computeStats(vulns, Date.now());
   if (!stats) { boardState("THE BOARD IS EMPTY. WHICH IS TECHNICALLY GOOD NEWS."); return; }
-  renderCounter(stats);
+  renderCounter(stats, Array.isArray(data.moods) ? data.moods : []);
   renderService(stats);
   renderStats(stats);
   renderBoard(vulns);
@@ -723,7 +716,7 @@ if (typeof document !== "undefined" && document.getElementById("board")) {
 }
 /* node test hook */
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { parseVulns, computeStats, median, fmtDate, pad4, pickMood, DAY };
+  module.exports = { parseVulns, computeStats, median, fmtDate, pad4, pickMood, moodMatches, DAY };
 }
 </script>
 </body>
