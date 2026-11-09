@@ -44,8 +44,18 @@ def main() -> int:
     for i, v in enumerate(vulns):
         tag = f"vulns[{i}]"
         name = v.get("name")
+        family = v.get("family", "shell")
+        if family not in ("shell", "honorary"):
+            errors.append(f"{tag}: family must be 'shell' (default) or 'honorary'")
         if not name or not NAME_RE.match(name):
-            errors.append(f"{tag}: name {name!r} doesn't match the *2Shell/*4Shell pattern")
+            if family == "honorary":
+                # honorary members skip the -Shell pattern but are still
+                # real, branded, publicly-disclosed genus members (e.g. sshhole)
+                if not name or len(str(name)) > 30:
+                    errors.append(f"{tag}: honorary name missing or silly-long")
+            else:
+                errors.append(f"{tag}: name {name!r} doesn't match the *2Shell/*4Shell pattern "
+                              f"(non-Shell names need \"family\": \"honorary\"")
         if name and name.lower() in {"2shell", "4shell"}:
             errors.append(f"{tag}: {name!r} is the family name, not a member")
         if name and name.lower() in seen:
@@ -77,6 +87,9 @@ def main() -> int:
             errors.append(f"{tag}: summary over 280 chars — take it to the blog post")
         if v.get("era") not in {"classic", "wave"}:
             errors.append(f"{tag}: era must be 'classic' or 'wave'")
+        if v.get("family", "shell") == "honorary" and not v.get("url"):
+            errors.append(f"{tag}: honorary members need a 'url' — "
+                          f"the board counts the branding, show the branding")
         if not v.get("added") or not DATE_RE.match(str(v.get("added"))):
             errors.append(f"{tag}: 'added' must be a YYYY-MM-DD provenance date")
         if not v.get("added_by"):

@@ -20,7 +20,13 @@ A shell gets on the board if it is a **real, publicly disclosed
 vulnerability whose branded name ends in "Shell"** (Log4Shell, Spring4Shell,
 Text4Shell, wp2shell, PHP2Shell…). Parody names, rumors, and things that
 turned out to be marketing are not shells. The digit is whatever the
-branders chose; the genre accepts both 2s and 4s. The two eras are framing
+branders chose; the genre accepts both 2s and 4s.
+
+**Honorary members**: the board really counts the *naming circus*, so a
+genuinely-branded genus member that doesn't end in Shell can still board
+with `"family": "honorary"` — it needs the same real-vulnerability proof
+plus its own branded site/link. `sshhole` (sshhole.com) is the first. No
+site, no slot. The two eras are framing
 only: `classic` (the 2021–22 genre-founding era) and `wave` (the 2026
 2Shell wave).
 
@@ -48,6 +54,8 @@ only: `classic` (the 2021–22 genre-founding era) and `wave` (the 2026
      nobody redeploys to make the number tick.
    - `summary` = one line, max 280 chars. Snark welcome; facts mandatory.
    - `era` = `classic` (pre-2026, sepia chips) or `wave` (2026, rainbow chips).
+   - `family` = omit for Shell-family names; `"honorary"` for branded genre
+     members that don't end in Shell (`sshhole`) — they require a `url`.
    - `cves` may be `[]` if you're still researching — the board shows a dash.
 
 2. Open a PR. CI validates the shape (`scripts/validate.py`) and a human

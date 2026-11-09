@@ -56,6 +56,18 @@
       "added_by": "dbeard"
     },
     {
+      "name": "sshhole",
+      "date": "2026-11-05",
+      "cves": ["CVE-2026-123158"],
+      "tech": "OpenSSH on musl (Alpine, OpenWrt, docker base images)",
+      "summary": "OpenSSH on musl accepted any 256+ char password for `*`-locked accounts — root included. A 2012 shortcut met a 1980 convention. The genre's first -hole, and the story-site is excellent.",
+      "url": "https://sshhole.com",
+      "era": "wave",
+      "family": "honorary",
+      "added": "2026-11-09",
+      "added_by": "dbeard"
+    },
+    {
       "name": "Able2Shell",
       "date": "2026-11-09",
       "cves": [],
