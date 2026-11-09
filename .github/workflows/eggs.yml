@@ -1,0 +1,37 @@
+name: eggs
+
+# The incubator: refresh data/eggs.json daily — brand-shaped newly-registered
+# domains that haven't hatched yet. The canonical rater is crucix's NRDWatch
+# (homelab); this is the public display copy, so the site stays static.
+on:
+  schedule:
+    - cron: "23 18 * * *"   # daily 18:23 UTC — just after the NRD list's ~17:12 update
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: eggs
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Regenerate the incubator
+        run: python scripts/eggs.py
+      - name: Commit if anything changed
+        run: |
+          git config user.name "eggkeeper-bot"
+          git config user.email "actions@github.com"
+          git add data/eggs.json
+          if git diff --cached --quiet; then
+            echo "no change — the incubator is stable today"
+          else
+            git commit -m "eggs: daily incubator sweep [skip ci]"
+            git push
+          fi

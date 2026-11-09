@@ -99,14 +99,37 @@ disclosure date, and merges. The bot proposes; humans dispose.
 If a bot PR beat you to your favorite shell, add your name in `added_by`
 when you clean it up. The board belongs to whoever shows up.
 
+## Egg shells
+
+The board also shows its **incubator**: brand-shaped domains from the last
+10 days of public new-domain registrations that haven't hatched yet —
+`nextjs2shell.com` is in there right now, parked. Could be a squatter,
+could be a researcher sitting on a disclosure; the incubator does not judge.
+Statuses say what the site's own title says:
+
+- **QUIET** — no site / no title yet
+- **PARKING** — the title is just the domain: squatter holding pen
+- **STIRRING** — a real site that says something
+- **CRACKING** — vuln language in the title; about to hatch
+
+`data/eggs.json` is machine-maintained — a daily GitHub Action
+(`.github/workflows/eggs.yml`) regenerates it from the public NRD lists
+with the same scoring crucix's NRDWatch uses (the canonical rater lives in
+the maintainer's crucix fork). When an egg hatches — a real shell lands on
+the board via PR — it stops being an egg. PRs still gate the board itself;
+the incubator is display-only.
+
 ## Repo layout
 
 | Path | Purpose |
 |------|---------|
-| `index.html` | the board (countdown, arrivals, next-service panel) |
+| `index.html` | the board (countdown, arrivals, egg shells, next-service panel) |
 | `data/vulns.json` | **the product** — every shell, open data |
+| `data/eggs.json` | the incubator (machine-written daily, no PRs needed) |
 | `scripts/validate.py` | JSON contract checks, run by CI on every PR |
+| `scripts/eggs.py` | the incubator generator (must match crucix NRDWatch scoring) |
 | `.github/workflows/validate.yml` | the CI gate |
+| `.github/workflows/eggs.yml` | daily egg refresh |
 | `tracker/track.py` | the bot (stdlib Python; deploy notes in its docstring) |
 | `DESIGN.md` | the visual world of the board |
 

@@ -60,6 +60,10 @@ SaaS-landing. Hierarchy by size, case, borders, chips, and hue.
   one-line summary. One continuous table, full-width ruled rows (2px ink);
   the column header is the rainbow bar (the GeoCities `<hr>` as the table
   head).
+- **Egg shells**: the incubator — `data/eggs.json` fetched and rendered as a
+  compact watchlist between the Hall and the PR guide: status chip (QUIET/
+  PARKING/STIRRING/CRACKING — sepia/yellow/red/paper fills), domain link,
+  brand-score, one-line title. Fetch failure hides the panel quietly.
 - **Rainbow bar**: the GeoCities `<hr>` as a real component — the arrivals
   table header and the 404 page.
 - **Ticker**: a scrolling rainbow strip with ink text (aria-hidden,

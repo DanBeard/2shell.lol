@@ -256,6 +256,34 @@ a:hover { background: var(--hue-1); border-bottom-color: var(--ink); }
                  border: 2px solid var(--ink); padding: 0 .4rem; }
 
 /* ------------------------------------------------------------------ */
+/* egg shells — the incubator                                          */
+/* ------------------------------------------------------------------ */
+.eggs-zone { padding-block: 0 2.4rem; }
+.eggs { list-style: none; border-top: 3px solid var(--ink); }
+.egg {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr) 4ch minmax(0, 1.1fr);
+  column-gap: 1.2rem; align-items: center;
+  padding-block: .7rem;
+  border-bottom: 2px solid var(--ink);
+}
+.egg:hover { background: #fffdf5; }
+.st {
+  font-size: .68rem; letter-spacing: .04em; text-align: center;
+  padding: .12rem .3rem; border: 2px solid var(--ink);
+}
+.st-quiet    { background: #fffdf5; }
+.st-parking  { background: var(--sepia); }
+.st-stirring { background: var(--hue-1); }
+.st-cracking { background: var(--hue-7); box-shadow: 3px 3px 0 var(--ink); }
+.egg-domain a { color: var(--ink); border-bottom: 2px solid var(--hue-4); font-size: 1rem; }
+.egg-domain a:hover { background: var(--hue-1); }
+.egg-score { text-align: right; color: var(--dim); font-size: .85rem;
+             font-variant-numeric: tabular-nums; }
+.egg-title { color: var(--dim); font-size: .8rem; overflow: hidden;
+             text-overflow: ellipsis; white-space: nowrap; }
+
+/* ------------------------------------------------------------------ */
 /* add-a-shell                                                          */
 /* ------------------------------------------------------------------ */
 .add-zone { padding-block: 0 2.4rem; }
@@ -331,6 +359,8 @@ a:hover { background: var(--hue-1); border-bottom-color: var(--ink); }
 }
 @media (max-width: 720px) {
   .cols { display: none; }
+  .egg { grid-template-columns: 6.5rem minmax(0, 1fr) 4ch; }
+  .egg-title { grid-column: 1 / -1; }
   .arrival { grid-template-columns: 6.2ch minmax(0, 1fr) max-content;
              row-gap: .45rem; }
   .arrival .cves { grid-row: 3; grid-column: 1 / -1; text-align: left; max-width: none; }
@@ -395,6 +425,13 @@ a:hover { background: var(--hue-1); border-bottom-color: var(--ink); }
     </div>
     <ol class="board" id="board">
       <li class="board-state" id="board-state">UNBOXING THE CHOCOLATES<span class="vh">loading data</span></li>
+    </ol>
+  </section>
+
+  <section class="wrap eggs-zone" aria-label="egg shells — registered, not hatched">
+    <h2 class="board-title">EGG SHELLS <span class="note">brand-shaped domains, registered but not yet hatched. most never will.</span></h2>
+    <ol class="eggs" id="eggs">
+      <li class="board-state">CHECKING THE INCUBATOR…</li>
     </ol>
   </section>
 
@@ -632,6 +669,30 @@ function renderBoard(vulns) {
   });
 }
 
+async function renderEggs() {
+  const zone = document.getElementById("eggs");
+  const esc = (s) => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  try {
+    const res = await fetch("data/eggs.json?v=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const eggs = data.eggs || [];
+    if (!eggs.length) {
+      zone.innerHTML = `<li class="board-state">THE INCUBATOR IS EMPTY. THE NAMING COMMITTEE IS RESTING.</li>`;
+      return;
+    }
+    zone.innerHTML = eggs.map(e => `
+      <li class="egg">
+        <span class="st st-${esc(e.status)}">${esc((e.status || "quiet").toUpperCase())}</span>
+        <span class="egg-domain"><a href="https://${esc(e.domain)}" rel="noopener">${esc(e.domain)}</a></span>
+        <span class="egg-score">${e.score ?? "—"}</span>
+        <span class="egg-title">${esc(e.title)}</span>
+      </li>`).join("");
+  } catch {
+    zone.closest(".eggs-zone").style.display = "none"; // incubator offline → quiet panel
+  }
+}
+
 function renderTicker(stats) {
   const base = `IT HAS BEEN ${stats.daysSince} DAYS SINCE THE LAST 2SHELL` +
     ` · LAST ARRIVAL: ${stats.latest.name.toUpperCase()} ${fmtDate(stats.latest.ts)}` +
@@ -675,6 +736,7 @@ async function init() {
   renderStats(stats);
   renderBoard(vulns);
   renderTicker(stats);
+  renderEggs();
   /* one more for the console gremlins */
   console.log("%c 2shell.lol %c " + stats.daysSince +
     " days since " + stats.latest.name + " · est. next in ~" +
