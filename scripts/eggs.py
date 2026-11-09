@@ -46,12 +46,34 @@ P_GENRE = re.compile(r"^[a-z0-9-]+(bleed|hole|pipe|leak|pwn|ageddon|pocalypse)$"
 TECH_WORDS = set(("php,wp,wordpress,node,bun,curl,git,go,rust,java,spring,tomcat,"
                   "kafka,docker,k8s,nginx,apache,python,django,flask,fastapi,rails,"
                   "mysql,postgres,redis,mongodb,elastic,ssh,openssh,linux,alpine,"
-                  "musl,aws,azure,gcp,dotnet,log4,log4j,http,api").split(","))
+                  "musl,aws,azure,gcp,dotnet,log4,log4j,log,http,api").split(","))
 BRAND_TLDS = {"com", "net", "org", "io", "dev", "lol", "app"}
+GENRE_SUFFIXES = ("2shell", "4shell", "bleed", "hole", "pipe", "leak", "pwn",
+                  "ageddon", "pocalypse")
+
+
+def tech_of(sld: str):
+    """A brand SLD decomposes as <tech>[digits] + <genre suffix> — php2shell,
+    log4shell, sshhole. The tech word must BE the remainder after stripping
+    the suffix, never a mere prefix: goldcoastdrainandpipe starts with 'go',
+    but the head after 'pipe' is not a tech word, so it is not Golang."""
+    for suf in sorted(GENRE_SUFFIXES, key=len, reverse=True):
+        if sld.endswith(suf):
+            head = sld[:-len(suf)].rstrip("0123456789")
+            return head if head in TECH_WORDS else None
+    return None
 VULN_TITLE = re.compile(r"(?i)cve|rce|exploit|vulnerab|unauthenticated|0-?day|"
                         r"bypass|pre-auth|memory|advisory|disclos")
 
 SELF_DOMAINS = {"2shell.lol", "www.2shell.lol"}
+
+# Canonical tier-2 is OpenJev (crucix NRDWatch judges every non-shell-pattern
+# candidate vuln-brand vs generic-brand via the litellm /jev shim). This
+# Action-side display copy cannot reach the LAN judge, so it tightens
+# deterministically instead: ssh-genus needs a curated vuln suffix
+# (sshhole-style — sshockey.com is a hockey blog), and genre-suffix needs a
+# tech prefix (goldcoastdrainandpipe.com is a plumbing company).
+SSH_GENUS_SUFFIXES = {"hole", "pwn", "fail", "trap", "gap"}
 
 
 def score(domain: str):
@@ -62,12 +84,16 @@ def score(domain: str):
     if P_SHELL.match(sld):
         base, why = 90, "shell-pattern"
     elif P_SSH.match(sld):
+        if sld[3:] not in SSH_GENUS_SUFFIXES:
+            return None
         base, why = 50, "ssh-genus"
     elif P_GENRE.match(sld):
+        if not tech_of(sld):
+            return None
         base, why = 40, "genre-suffix"
     else:
         return None
-    tech = next((w for w in TECH_WORDS if sld.startswith(w) and sld != w), None)
+    tech = tech_of(sld)
     score_v = min(100, base
                   + (15 if tech else 0)
                   + (10 if tld in BRAND_TLDS else 0)

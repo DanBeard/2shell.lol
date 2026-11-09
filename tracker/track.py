@@ -207,6 +207,11 @@ def nrd_candidates(data: dict, board_names: set) -> dict:
         label = domain.split(".")[0]
         if not label or label in board_names:
             continue
+        # crucix's OpenJev verdict is authoritative: judge says generic → out
+        jev = d.get("jev") or {}
+        if jev.get("vulnBrand") is False:
+            log(f"nrd: {domain} — OpenJev says generic-brand, skipping")
+            continue
         grab = d.get("grab") or {}
         title = (grab.get("title") or "").strip()
         if not title:
