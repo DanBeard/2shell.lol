@@ -88,12 +88,13 @@ First match wins, top to bottom, so order is priority:
 ## There is also a bot
 
 A tracker (a plain-stdlib Python CronJob on the maintainer's homelab, this
-repo's [`tracker/`](tracker/) directory) reads an OSINT dashboard's
-security social-signal synthesis every six hours, notices chatter about
-names matching the `*2Shell`/`*4Shell` pattern, and opens PRs by itself —
-one per candidate, with the social evidence attached. Bot PRs are drafts
-with a review checklist: a human verifies it's real, fixes the disclosure
-date, and merges. The bot proposes; humans dispose.
+repo's [`tracker/`](tracker/) directory) reads an OSINT dashboard's outputs
+every six hours — the security social-signal synthesis **and** a
+newly-registered-domains watch that scans ~700k fresh domains a day for
+vuln-brand-shaped names, scores them, and peeks at their site titles — and
+opens PRs by itself, one per candidate, with the evidence attached. Bot PRs
+are drafts with a review checklist: a human verifies it's real, fixes the
+disclosure date, and merges. The bot proposes; humans dispose.
 
 If a bot PR beat you to your favorite shell, add your name in `added_by`
 when you clean it up. The board belongs to whoever shows up.
