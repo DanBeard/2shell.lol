@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09T19:45:42+00:00",
+  "generated": "2026-11-10T23:35:00+00:00",
   "window": "last 10 days of public new-domain registrations",
   "count": 3,
   "eggs": [
@@ -8,8 +8,8 @@
       "score": 100,
       "why": "shell-pattern",
       "tech": null,
-      "title": "nextjs2shell.com",
-      "status": "parking"
+      "title": "",
+      "status": "quiet"
     },
     {
       "domain": "quic2shell.com",
