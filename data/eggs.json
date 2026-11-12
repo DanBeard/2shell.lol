@@ -1,7 +1,7 @@
 {
-  "generated": "2026-11-12T00:52:41+00:00",
+  "generated": "2026-11-12T23:43:18+00:00",
   "window": "last 10 days of public new-domain registrations",
-  "count": 4,
+  "count": 8,
   "eggs": [
     {
       "domain": "base64shell.com",
@@ -10,6 +10,30 @@
       "tech": null,
       "title": "",
       "status": "quiet"
+    },
+    {
+      "domain": "beach2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "Beach2Shell",
+      "status": "stirring"
+    },
+    {
+      "domain": "boot2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "",
+      "status": "quiet"
+    },
+    {
+      "domain": "directions2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "Directions2Shell",
+      "status": "stirring"
     },
     {
       "domain": "nextjs2shell.com",
@@ -21,6 +45,14 @@
     },
     {
       "domain": "quic2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "",
+      "status": "quiet"
+    },
+    {
+      "domain": "xmas2shell.com",
       "score": 100,
       "why": "shell-pattern",
       "tech": null,
