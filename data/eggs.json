@@ -1,8 +1,16 @@
 {
-  "generated": "2026-11-10T23:35:00+00:00",
+  "generated": "2026-11-12T00:52:41+00:00",
   "window": "last 10 days of public new-domain registrations",
-  "count": 3,
+  "count": 4,
   "eggs": [
+    {
+      "domain": "base64shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "",
+      "status": "quiet"
+    },
     {
       "domain": "nextjs2shell.com",
       "score": 100,
