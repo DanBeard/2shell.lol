@@ -194,12 +194,12 @@ def append_history(run: dict) -> None:
 
 
 def nrd_candidates(data: dict, board_names: set) -> dict:
-    """crucix NRDWatch: shell-pattern domains with live, non-parking sites.
+    """crucix NRDWatch: shell-pattern domains speaking vuln language.
 
-    A registered *2Shell domain whose site says something (a title beyond
-    the domain itself, or strict vuln language) becomes a PR candidate —
-    the domain watch flows downstream like any other crucix signal.
-    Parking pages (title == domain) and title-less sites are watched, not PR'd.
+    A registered *2Shell domain whose site title contains vuln language
+    becomes a PR candidate — the domain watch flows downstream like any
+    other crucix signal. Parking pages (title == domain), title-less sites,
+    and live-but-harmless joke sites are watched (incubator eggs), not PR'd.
     """
     nrd = data.get("nrd") or {}
     cands: dict = {}
@@ -222,13 +222,17 @@ def nrd_candidates(data: dict, board_names: set) -> dict:
             continue
         parking = title.lower() == domain
         strict = bool(VULN_TITLE.search(title))
-        if d.get("score", 0) >= 90 and not parking:
-            verdict = "shell-pattern + live site"
-        elif strict:
+        # PR bar is "cracking", not merely "live": the shell pattern now also
+        # catches joke/memorabilia registrations (beach2shell, xmas2shell, …),
+        # which are incubator display material, not arrivals-board news. A real
+        # disclosure site speaks vuln language in its title — that's the gate.
+        # (For pattern domains this matches eggs.py's "cracking" status.)
+        if strict:
             verdict = "vuln-language title"
         else:
-            log(f"nrd: {domain} (score {d.get('score')}) — title looks like "
-                f"{'parking' if parking else 'noise'}, watching: {title[:60]}")
+            log(f"nrd: {domain} (score {d.get('score')}, "
+                f"{'pattern' if d.get('score', 0) >= 90 else d.get('why')}) — "
+                f"live site but no vuln language, incubating: {title[:60]}")
             continue
         log(f"nrd: {domain} — CANDIDATE ({verdict}): {title[:60]}")
         cands[label] = {
