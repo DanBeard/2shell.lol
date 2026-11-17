@@ -268,6 +268,68 @@ def social_clusters(data: dict) -> list:
     return []
 
 
+def shell_chatter_candidates(data: dict) -> dict:
+    """crucix SocialSignal shellChatter — the chatter floor (2026-11-17).
+
+    SocialSignal now scans ALL posts (RSS + HN Algolia) for *2Shell/*4Shell
+    names and emits them regardless of corroboration. A name alone is NOT a
+    disclosure — genre noise (beach2shell joke registrations, "who would name
+    it that" jokes) is constant. The PR bar here: the chatter must carry a
+    CVE id, or vuln language (the VULN_TITLE gate) in its sample text.
+
+    Chatter passing the gate becomes a PROVISIONAL candidate: it opens a PR
+    with "status": "provisional" (board renders it as unconfirmed chatter,
+    excluded from the counter streak) — awareness on announcement day, truth
+    about prominence. Corroborated/strong clusters still flow through
+    extract_candidates as normal full-confidence candidates.
+    """
+    for path in (
+        lambda: data["social"]["shellChatter"],
+        lambda: data["sources"]["SocialSignal"]["shellChatter"],
+    ):
+        try:
+            val = path()
+        except (KeyError, TypeError):
+            continue
+        if not isinstance(val, list):
+            continue
+        cands: dict = {}
+        for e in val:
+            name = (e.get("name") or "").strip()
+            key = name.lower()
+            if not name or key in FAMILY_WORDS:
+                continue
+            cves = set(e.get("cves") or [])
+            samples = e.get("samples") or []
+            text_blob = " ".join((s.get("text") or "") for s in samples)
+            vulnish = bool(VULN_TITLE.search(text_blob))
+            if not cves and not vulnish:
+                # log-only: a name in chatter with nothing vuln-flavored is
+                # squatter/joke territory — the incubator shows domains, this
+                # board needs more than a word.
+                log(f"chatter: {name} ({e.get('strength')}) — no CVE / no vuln "
+                    f"language in samples, incubating")
+                continue
+            cands[key] = {
+                "display": name,
+                "authors": set(e.get("authors") or []) | {"social-chatter"},
+                "trusted": bool(e.get("trustedAuthors")),
+                "corroborated": len(e.get("networks") or []) >= 2,
+                "cves": cves,
+                # chatter reaching this dict already cleared the CVE/vuln-
+                # language gate — it is provisional until a human confirms.
+                "provisional": True,
+                "evidence": [
+                    {"author": s.get("author"), "network": s.get("network"),
+                     "url": s.get("url"), "text": (s.get("text") or "")[:200],
+                     "level": f"chatter ({e.get('strength')})"}
+                    for s in samples[:6]
+                ],
+            }
+        return cands
+    return {}
+
+
 def extract_candidates(clusters: list) -> dict:
     """name_key -> {display, evidence[], authors, trusted, corroborated, cves}"""
     cands: dict = {}
@@ -345,7 +407,12 @@ def open_pr_for(cand: dict, key: str) -> str:
         "date": date,
         "cves": sorted(cand["cves"]),
         "tech": "",
-        "summary": "Detected by the 2shell.lol tracker — pending human review.",
+        # Tracker entries land provisional ALWAYS: chatter is awareness, not
+        # proof. A human flips status to "confirmed" (and fills date/tech/
+        # summary/url) when merging with evidence in hand.
+        "status": "provisional",
+        "summary": "Detected by the 2shell.lol tracker — UNCONFIRMED "
+                   "chatter, pending human review.",
         "url": (cand["evidence"][0] or {}).get("url") or "",
         "era": "wave",
         "added_by": "2shell-tracker",
@@ -385,11 +452,16 @@ def open_pr_for(cand: dict, key: str) -> str:
         for e in cand["evidence"][:6])
     body = (
         f"The [2shell.lol tracker](https://2shell.lol) detected `{display}` in "
-        f"the crucix signal (social chatter and/or the NRD domain watch).\n\n"
-        f"**Evidence** (last 5 days of Mastodon/Bluesky chatter):\n{ev_lines}\n\n"
+        f"the crucix signal (social chatter and/or the NRD domain watch — "
+        f"now includes Hacker News via the Algolia API; chatter that isn't "
+        f"corroborated is intentionally surfaced as `status: \"provisional\"`).\n\n"
+        f"**Evidence**:\n{ev_lines}\n\n"
         f"**Before merging, please:**\n"
         f"1. Verify it is a real, publicly disclosed vulnerability — not a "
-        f"joke, a rumor, or a mention of an existing shell under another name.\n"
+        f"joke, a rumor, or a mention of an existing shell under another name. "
+        f"If it survives, set `\"status\": \"confirmed\"` (the tracker always "
+        f"ships `provisional` — the counter/streak only counts confirmed "
+        f"arrivals). If it does NOT survive, close this PR.\n"
         f"2. Fix `date` to the actual disclosure day (the tracker stamps the "
         f"detection day, which is wrong for anything older).\n"
         f"3. Fill in `tech` and a real `summary` (one line — snark welcome, "
@@ -455,13 +527,28 @@ def main() -> int:
     # 2. candidates — social chatter + NRD domain watch
     cands = extract_candidates(clusters)
     cands.update(nrd_candidates(data, board_names))
+    # chatter floor (shellChatter): merge WITHOUT clobbering anything a
+    # corroborated cluster or the NRD gate already contributed — but keep its
+    # evidence so one PR carries the full story.
+    for key, ch in shell_chatter_candidates(data).items():
+        if key in cands:
+            cands[key]["evidence"].extend(ch["evidence"])
+            cands[key]["provisional"] = cands[key].get("provisional", False)
+            cands[key]["cves"] |= ch["cves"]
+        else:
+            cands[key] = ch
 
     new, weak = [], []
     for key, cand in sorted(cands.items()):
         if key in board_names or key in seen:
             continue
         strong = (len(cand["authors"]) >= 2 or cand["trusted"]
-                  or cand["corroborated"])
+                  or cand["corroborated"]
+                  # chatter that cleared the CVE/vuln-language gate is worth
+                  # a provisional PR even from one unknown author — the whole
+                  # point of the floor is awareness on announcement day. The
+                  # entry still lands as status=provisional.
+                  or cand.pop("provisional", False))
         (new if strong else weak).append(cand)
 
     for cand in weak:

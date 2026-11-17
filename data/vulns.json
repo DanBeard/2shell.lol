@@ -77,6 +77,18 @@
       "era": "wave",
       "added": "2026-11-09",
       "added_by": "dbeard"
+    },
+    {
+      "name": "Java4Shell",
+      "date": "2026-11-17",
+      "cves": ["CVE-2026-114938"],
+      "tech": "Oracle Java 17",
+      "status": "provisional",
+      "summary": "UNCONFIRMED chatter, pending human review: third-party 'Java4Shell (CVE-2026-114938)' branding around RCE claims tied to an Oracle Java 17 CPU. Surfaced so the board shows the naming wave as it breaks — the counter does not count this one.",
+      "url": "https://hadrian.io/vulnerability-alerts/oracle-critical-security-patch-update-java-17-rce-claims",
+      "era": "wave",
+      "added_by": "dbeard",
+      "added": "2026-11-17"
     }
   ],
   "moods": [

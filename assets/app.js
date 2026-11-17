@@ -15,13 +15,19 @@ const safeUrl = (u) => (u && SAFE_URL.test(u)) ? u : null;
 
 const DAY = 86400000;
 
+// Provisional entries (tracker chatter, `status: "provisional"`) are
+// displayed but NOT counted — the streak stays truthful, the chatter stays
+// visible.
 function parseVulns(data) {
   const vulns = (data.vulns || []).filter(v => v && v.name && v.date)
-    .map(v => ({ ...v, ts: Date.parse(v.date + "T00:00:00Z") }))
+    .map(v => ({ ...v, ts: Date.parse(v.date + "T00:00:00Z"),
+                 provisional: v.status === "provisional" }))
     .filter(v => !isNaN(v.ts))
     .sort((a, b) => a.ts - b.ts);           // oldest first
   return vulns;
 }
+
+const confirmed = (vulns) => vulns.filter(v => !v.provisional);
 
 function median(xs) {
   if (!xs.length) return null;
@@ -174,22 +180,21 @@ function renderBoard(vulns) {
   const rows = [...vulns].reverse();   // newest first — gap math too, not just display
   rows.forEach((v, ri) => {
     const li = document.createElement("li");
-    li.className = "arrival";
-    const gap = ri < rows.length - 1
-      ? "+" + Math.round((v.ts - rows[ri + 1].ts) / DAY) + "d"
-      : "—";
-    const num = pad4(vulns.length - ri);
+    li.className = "arrival" + (v.provisional ? " arrival-provisional" : "");
+    const gap = v.provisional || ri >= rows.length - 1 || rows[ri + 1].provisional
+      ? "—"   // provisional rows don't participate in the gap math
+      : "+" + Math.round((v.ts - rows[ri + 1].ts) / DAY) + "d";
+    const num = v.provisional ? "···" : pad4(vulns.length - ri);
     /* era encoding is the candy: wave = rainbow wheel, classic = sepia */
     li.style.setProperty("--chip",
       v.era === "wave" ? hueVar(vulns.length - ri - 1) : "var(--sepia)");
-    const cves = (v.cves || []).map(c =>
-      `<a href="https://nvd.nist.gov/vuln/detail/${esc(c)}" title="${esc(c)} on NVD" target="_blank" rel="noopener noreferrer">${esc(String(c).replace("CVE-", ""))}</a>`).join("<br>")
+    const cves = (v.cves || []).map(c => `<a href="https://nvd.nist.gov/vuln/detail/${esc(c)}" title="${esc(c)} on NVD" target="_blank" rel="noopener noreferrer">${esc(String(c).replace("CVE-", ""))}</a>`).join("<br>")
       || "<span style='color:var(--dim)'>none yet</span>";
     const url = safeUrl(v.url);
     const src = url ? `<a href="${esc(url)}" aria-label="source for ${esc(v.name)}" target="_blank" rel="noopener noreferrer">SRC↗</a>` : "—";
     li.innerHTML = `
       <span class="no">${num}</span>
-      <span class="name">${url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(v.name)}</a>` : esc(v.name)}<span class="tech">${esc(v.tech || "")}</span></span>
+      <span class="name">${v.provisional ? '<span class="prov-badge" title="tracker chatter — UNCONFIRMED, not counted in the streak">PROVISIONAL</span> ' : ""}${url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(v.name)}</a>` : esc(v.name)}<span class="tech">${esc(v.tech || "")}</span></span>
       <span class="cves">${cves}</span>
       <span class="arr"><small>ARR</small>${fmtDate(v.ts)}</span>
       <span class="gap">${gap}</span>
@@ -258,7 +263,9 @@ async function init() {
     return;
   }
   const vulns = parseVulns(data);
-  const stats = computeStats(vulns, Date.now());
+  /* the counter/streak counts CONFIRMED arrivals only — provisional chatter
+     must not reset the clock (truthful prominence: visible, not counted) */
+  const stats = computeStats(confirmed(vulns), Date.now());
   if (!stats) { boardState("THE BOARD IS EMPTY. WHICH IS TECHNICALLY GOOD NEWS."); return; }
   renderCounter(stats, Array.isArray(data.moods) ? data.moods : []);
   renderService(stats);

@@ -56,6 +56,11 @@ only: `classic` (the 2021–22 genre-founding era) and `wave` (the 2026
    - `era` = `classic` (pre-2026, sepia chips) or `wave` (2026, rainbow chips).
    - `family` = omit for Shell-family names; `"honorary"` for branded genre
      members that don't end in Shell (`sshhole`) — they require a `url`.
+   - `status` = omit for confirmed arrivals. `"provisional"` marks a tracker-
+     detected arrival that is UNCONFIRMED (chatter/claims, not yet verified):
+     it renders with a PROVISIONAL badge and never counts toward the counter
+     streak — the board shows the naming wave as it breaks without lying
+     about it. A human flips it to confirmed (or deletes it) after review.
    - `cves` may be `[]` if you're still researching — the board shows a dash.
 
 2. Open a PR. CI validates the shape (`scripts/validate.py`) and a human

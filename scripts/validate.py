@@ -101,6 +101,20 @@ def main() -> int:
             errors.append(f"{tag}: summary over 280 chars — take it to the blog post")
         if v.get("era") not in {"classic", "wave"}:
             errors.append(f"{tag}: era must be 'classic' or 'wave'")
+        # status: "provisional" = tracker chatter surfaced for awareness —
+        # real evidence attached, but UNCONFIRMED until a human flips it to
+        # "confirmed". The counter never counts provisional entries.
+        status = v.get("status", "confirmed")
+        if status not in {"confirmed", "provisional"}:
+            errors.append(f"{tag}: status must be 'confirmed' (default) or 'provisional'")
+        if status == "provisional":
+            if not v.get("url"):
+                errors.append(f"{tag}: provisional entries carry chatter — they still "
+                              f"need a 'url' with the primary chatter source")
+            s = str(v.get("summary") or "")
+            if "unconfirmed" not in s.lower() and "pending" not in s.lower():
+                errors.append(f"{tag}: provisional summary must say the entry is "
+                              f"unconfirmed/pending — truth in prominence is the rule")
         if v.get("family", "shell") == "honorary" and not v.get("url"):
             errors.append(f"{tag}: honorary members need a 'url' — "
                           f"the board counts the branding, show the branding")
