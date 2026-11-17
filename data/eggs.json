@@ -1,7 +1,7 @@
 {
-  "generated": "2026-11-15T23:00:08+00:00",
+  "generated": "2026-11-17T01:55:32+00:00",
   "window": "last 10 days of public new-domain registrations",
-  "count": 10,
+  "count": 9,
   "eggs": [
     {
       "domain": "base64shell.com",
@@ -58,14 +58,6 @@
       "tech": null,
       "title": "Power2Shell: Critical flaw lets Windows users run PowerShell commands",
       "status": "stirring"
-    },
-    {
-      "domain": "quic2shell.com",
-      "score": 100,
-      "why": "shell-pattern",
-      "tech": null,
-      "title": "",
-      "status": "quiet"
     },
     {
       "domain": "xmas2shell.com",
