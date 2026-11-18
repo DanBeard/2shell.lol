@@ -1,8 +1,16 @@
 {
-  "generated": "2026-11-17T01:55:32+00:00",
+  "generated": "2026-11-18T01:03:02+00:00",
   "window": "last 10 days of public new-domain registrations",
-  "count": 9,
+  "count": 8,
   "eggs": [
+    {
+      "domain": "apache2shell.kr",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": "apache",
+      "title": "",
+      "status": "quiet"
+    },
     {
       "domain": "base64shell.com",
       "score": 100,
@@ -44,14 +52,6 @@
       "status": "quiet"
     },
     {
-      "domain": "nextjs2shell.com",
-      "score": 100,
-      "why": "shell-pattern",
-      "tech": null,
-      "title": "",
-      "status": "quiet"
-    },
-    {
       "domain": "power2shell.com",
       "score": 100,
       "why": "shell-pattern",
@@ -62,14 +62,6 @@
     {
       "domain": "xmas2shell.com",
       "score": 100,
-      "why": "shell-pattern",
-      "tech": null,
-      "title": "",
-      "status": "quiet"
-    },
-    {
-      "domain": "testing2shell.online",
-      "score": 95,
       "why": "shell-pattern",
       "tech": null,
       "title": "",
