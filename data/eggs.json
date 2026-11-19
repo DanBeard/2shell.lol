@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-18T01:03:02+00:00",
+  "generated": "2026-11-19T00:33:29+00:00",
   "window": "last 10 days of public new-domain registrations",
   "count": 8,
   "eggs": [
@@ -16,8 +16,8 @@
       "score": 100,
       "why": "shell-pattern",
       "tech": null,
-      "title": "",
-      "status": "quiet"
+      "title": "Java4Shell: Write once, RCE everywhere",
+      "status": "cracking"
     },
     {
       "domain": "beach2shell.com",
