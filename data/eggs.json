@@ -1,7 +1,7 @@
 {
-  "generated": "2026-11-19T00:33:29+00:00",
+  "generated": "2026-11-20T00:43:40+00:00",
   "window": "last 10 days of public new-domain registrations",
-  "count": 8,
+  "count": 9,
   "eggs": [
     {
       "domain": "apache2shell.kr",
@@ -58,6 +58,14 @@
       "tech": null,
       "title": "Power2Shell: Critical flaw lets Windows users run PowerShell commands",
       "status": "stirring"
+    },
+    {
+      "domain": "sip2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "",
+      "status": "quiet"
     },
     {
       "domain": "xmas2shell.com",
