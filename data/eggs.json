@@ -1,8 +1,16 @@
 {
-  "generated": "2026-11-21T23:29:25+00:00",
+  "generated": "2026-11-22T23:41:44+00:00",
   "window": "last 10 days of public new-domain registrations",
-  "count": 12,
+  "count": 22,
   "eggs": [
+    {
+      "domain": "ansible2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
+      "status": "cracking"
+    },
     {
       "domain": "apache2shell.kr",
       "score": 100,
@@ -20,15 +28,7 @@
       "status": "quiet"
     },
     {
-      "domain": "beach2shell.com",
-      "score": 100,
-      "why": "shell-pattern",
-      "tech": null,
-      "title": "Beach2Shell",
-      "status": "stirring"
-    },
-    {
-      "domain": "boot2shell.com",
+      "domain": "av2shell.com",
       "score": 100,
       "why": "shell-pattern",
       "tech": null,
@@ -36,12 +36,20 @@
       "status": "quiet"
     },
     {
-      "domain": "directions2shell.com",
+      "domain": "erlang2shell.com",
       "score": 100,
       "why": "shell-pattern",
       "tech": null,
-      "title": "Directions2Shell",
-      "status": "stirring"
+      "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
+      "status": "cracking"
+    },
+    {
+      "domain": "haskell2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
+      "status": "cracking"
     },
     {
       "domain": "java2shell.io",
@@ -52,6 +60,14 @@
       "status": "stirring"
     },
     {
+      "domain": "kibana2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
+      "status": "cracking"
+    },
+    {
       "domain": "kumasan2shell.com",
       "score": 100,
       "why": "shell-pattern",
@@ -60,12 +76,52 @@
       "status": "quiet"
     },
     {
+      "domain": "langchain2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
+      "status": "cracking"
+    },
+    {
+      "domain": "memcached2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
+      "status": "cracking"
+    },
+    {
+      "domain": "mlflow2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
+      "status": "cracking"
+    },
+    {
       "domain": "nginx4shell.com",
       "score": 100,
       "why": "shell-pattern",
       "tech": "nginx",
       "title": "",
       "status": "quiet"
+    },
+    {
+      "domain": "openssh2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": "openssh",
+      "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
+      "status": "cracking"
+    },
+    {
+      "domain": "perl2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
+      "status": "cracking"
     },
     {
       "domain": "perl4shell.com",
@@ -92,12 +148,36 @@
       "status": "quiet"
     },
     {
-      "domain": "xmas2shell.com",
+      "domain": "smb2shell.com",
       "score": 100,
       "why": "shell-pattern",
       "tech": null,
-      "title": "",
-      "status": "quiet"
+      "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
+      "status": "cracking"
+    },
+    {
+      "domain": "tencent2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "\u817e\u8baf\u63a7\u80a1(HK0700)\u4e2a\u80a1\u8d44\u91d1\u6d41\u5411\u67e5\u8be2_\u4e2a\u80a1\u884c\u60c5_\u540c\u82b1\u987a\u8d22\u7ecf",
+      "status": "stirring"
+    },
+    {
+      "domain": "varnish2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
+      "status": "cracking"
+    },
+    {
+      "domain": "what2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "what2shell \u2014 Vulnerability Calendar",
+      "status": "cracking"
     }
   ],
   "note": "Egg shells: brand-shaped domains, registered but not yet hatched. Squatters or researchers \u2014 the incubator does not judge. Statuses: quiet (no site), parking (squatter holding pen), stirring (site says something), cracking (vuln language \u2014 about to hatch)."
