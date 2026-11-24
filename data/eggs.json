@@ -1,7 +1,7 @@
 {
-  "generated": "2026-11-22T23:41:44+00:00",
+  "generated": "2026-11-24T04:01:20+00:00",
   "window": "last 10 days of public new-domain registrations",
-  "count": 22,
+  "count": 27,
   "eggs": [
     {
       "domain": "ansible2shell.com",
@@ -36,6 +36,14 @@
       "status": "quiet"
     },
     {
+      "domain": "ecdsa2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "",
+      "status": "quiet"
+    },
+    {
       "domain": "erlang2shell.com",
       "score": 100,
       "why": "shell-pattern",
@@ -58,6 +66,14 @@
       "tech": "java",
       "title": "Archive | Java2Shell | Oracle Java Security Response",
       "status": "stirring"
+    },
+    {
+      "domain": "k3s2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "",
+      "status": "quiet"
     },
     {
       "domain": "kibana2shell.com",
@@ -84,6 +100,14 @@
       "status": "cracking"
     },
     {
+      "domain": "login2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "",
+      "status": "quiet"
+    },
+    {
       "domain": "memcached2shell.com",
       "score": 100,
       "why": "shell-pattern",
@@ -98,6 +122,14 @@
       "tech": null,
       "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
       "status": "cracking"
+    },
+    {
+      "domain": "munson2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "munson2shell",
+      "status": "stirring"
     },
     {
       "domain": "nginx4shell.com",
@@ -140,6 +172,14 @@
       "status": "stirring"
     },
     {
+      "domain": "quantum2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "RPISEC | Computer security club at Rensselaer Polytechnic Institute.",
+      "status": "stirring"
+    },
+    {
       "domain": "sip2shell.com",
       "score": 100,
       "why": "shell-pattern",
@@ -153,30 +193,6 @@
       "why": "shell-pattern",
       "tech": null,
       "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
-      "status": "cracking"
-    },
-    {
-      "domain": "tencent2shell.com",
-      "score": 100,
-      "why": "shell-pattern",
-      "tech": null,
-      "title": "\u817e\u8baf\u63a7\u80a1(HK0700)\u4e2a\u80a1\u8d44\u91d1\u6d41\u5411\u67e5\u8be2_\u4e2a\u80a1\u884c\u60c5_\u540c\u82b1\u987a\u8d22\u7ecf",
-      "status": "stirring"
-    },
-    {
-      "domain": "varnish2shell.com",
-      "score": 100,
-      "why": "shell-pattern",
-      "tech": null,
-      "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
-      "status": "cracking"
-    },
-    {
-      "domain": "what2shell.com",
-      "score": 100,
-      "why": "shell-pattern",
-      "tech": null,
-      "title": "what2shell \u2014 Vulnerability Calendar",
       "status": "cracking"
     }
   ],
