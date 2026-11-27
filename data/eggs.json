@@ -1,7 +1,7 @@
 {
-  "generated": "2026-11-26T01:53:58+00:00",
+  "generated": "2026-11-27T01:51:00+00:00",
   "window": "last 10 days of public new-domain registrations",
-  "count": 26,
+  "count": 29,
   "eggs": [
     {
       "domain": "ansible2shell.com",
@@ -172,6 +172,14 @@
       "status": "stirring"
     },
     {
+      "domain": "really2shell.com",
+      "score": 100,
+      "why": "shell-pattern",
+      "tech": null,
+      "title": "",
+      "status": "quiet"
+    },
+    {
       "domain": "sip2shell.com",
       "score": 100,
       "why": "shell-pattern",
@@ -186,14 +194,6 @@
       "tech": null,
       "title": "AI Pentesting for Continuous Vulnerability Management | Faraday",
       "status": "cracking"
-    },
-    {
-      "domain": "tencent2shell.com",
-      "score": 100,
-      "why": "shell-pattern",
-      "tech": null,
-      "title": "\u817e\u8baf\u63a7\u80a1(HK0700)\u4e2a\u80a1\u8d44\u91d1\u6d41\u5411\u67e5\u8be2_\u4e2a\u80a1\u884c\u60c5_\u540c\u82b1\u987a\u8d22\u7ecf",
-      "status": "stirring"
     }
   ],
   "note": "Egg shells: brand-shaped domains, registered but not yet hatched. Squatters or researchers \u2014 the incubator does not judge. Statuses: quiet (no site), parking (squatter holding pen), stirring (site says something), cracking (vuln language \u2014 about to hatch)."
