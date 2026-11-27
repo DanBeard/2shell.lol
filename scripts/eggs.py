@@ -67,6 +67,16 @@ VULN_TITLE = re.compile(r"(?i)cve|rce|exploit|vulnerab|unauthenticated|0-?day|"
 
 SELF_DOMAINS = {"2shell.lol", "www.2shell.lol"}
 
+
+def brand_in_title(domain: str, title: str) -> bool:
+    """The title must name the domain's own brand token — 'Power2Shell',
+    'java2shell', even hyphenated variants — for vuln language to count as
+    cracking. Generic security-vendor pages (Faraday's 'AI Pentesting for
+    Continuous Vulnerability Management' sits on a dozen shell-pattern
+    squats) match VULN_TITLE while saying nothing about the egg itself."""
+    token = domain.split(".")[0]
+    return token in title.lower()
+
 # Canonical tier-2 is OpenJev (crucix NRDWatch judges every non-shell-pattern
 # candidate vuln-brand vs generic-brand via the litellm /jev shim). This
 # Action-side display copy cannot reach the LAN judge, so it tightens
@@ -125,7 +135,7 @@ def classify(domain: str, title: str) -> str:
         return "quiet"
     if title.lower() == domain:
         return "parking"
-    if VULN_TITLE.search(title):
+    if VULN_TITLE.search(title) and brand_in_title(domain, title):
         return "cracking"
     return "stirring"
 

@@ -85,6 +85,16 @@ FAMILY_WORDS = {"2shell", "4shell"}
 VULN_TITLE = re.compile(r"(?i)cve|rce|exploit|vulnerab|unauthenticated|0-?day|"
                         r"bypass|pre-auth|memory|advisory|disclos")
 
+
+def brand_in_title(domain: str, title: str) -> bool:
+    """The title must name the domain's own brand token for vuln language to
+    count. Generic security-vendor pages ('AI Pentesting for Continuous
+    Vulnerability Management' sits on a dozen shell-pattern squats) match
+    VULN_TITLE while saying nothing about the domain itself. Must match
+    eggs.py's classify()."""
+    return domain.split(".")[0] in title.lower()
+
+
 UA = "2shell-tracker/1.0 (+2shell.lol)"
 
 
@@ -221,7 +231,7 @@ def nrd_candidates(data: dict, board_names: set) -> dict:
             log(f"nrd: {domain} (score {d.get('score')}) — no site title yet, watching")
             continue
         parking = title.lower() == domain
-        strict = bool(VULN_TITLE.search(title))
+        strict = bool(VULN_TITLE.search(title)) and brand_in_title(domain, title)
         # PR bar is "cracking", not merely "live": the shell pattern now also
         # catches joke/memorabilia registrations (beach2shell, xmas2shell, …),
         # which are incubator display material, not arrivals-board news. A real
